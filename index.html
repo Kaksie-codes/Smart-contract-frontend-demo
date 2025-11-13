@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minimal DApp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1>☕ Minimal DApp</h1>
+      <p>Interact with your smart contract directly from the browser</p>
+    </header>
+
+    <main>
+      <div class="card">
+        <button id="connectBtn" class="btn primary">Connect Wallet</button>
+
+        <div class="actions">
+          <button id="buyBtn" class="btn">Buy Coffee</button>
+          <button id="balanceBtn" class="btn">Get Balance</button>
+          <button id="withdrawBtn" class="btn danger">Withdraw</button>
+        </div>
+
+        <div id="status" class="status">Status: Not connected</div>
+      </div>
+    </main>
+
+    <footer>
+      <p>Built for learning • Web3 Integration Demo</p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
