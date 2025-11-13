@@ -27,7 +27,6 @@ async function Connect() {
         console.log("Wallet client:", walletClient);
         connectBtn.textContent = "✅ Connected";
         // const address = walletClient.account.address;
-<<<<<<< Updated upstream
 
         // Check balance
         publicClient = createPublicClient({
@@ -35,8 +34,7 @@ async function Connect() {
             transport: custom(window.ethereum),
         });
         
-=======
->>>>>>> Stashed changes
+        console.log('address: >>>', address);
         const balance = await publicClient.getBalance({ address });
         console.log("Balance:", balance, "wei");
         console.log("Balance in ETH:", Number(balance) / 1e18);
