@@ -27,6 +27,16 @@ async function Connect() {
         console.log("Wallet client:", walletClient);
         connectBtn.textContent = "✅ Connected";
         // const address = walletClient.account.address;
+
+        // Check balance
+        publicClient = createPublicClient({
+            chain: sepolia,
+            transport: custom(window.ethereum),
+        });
+        
+        const balance = await publicClient.getBalance({ address });
+        console.log("Balance:", balance, "wei");
+        console.log("Balance in ETH:", Number(balance) / 1e18);
         
         statusDiv.textContent = `Connected: ${address.substring(0, 6)}...${address.slice(-4)}`;
       } catch (err) {
@@ -56,16 +66,16 @@ async function BuyCoffee() {
             transport: custom(window.ethereum),
         });
 
-        // await publicClient.simulateContract({
-        //     address: contractAddress,
-        //     account: connectedAddress,
-        //     abi: contractABI,
-        //     functionName: 'fund',
-        //     // value: BigInt(ethAmount * 1e18), // Convert ETH to Wei
-        //     value: parseEther(ethAmount),
-        //     chain: sepolia,
-        //  }
-        // )
+        await publicClient.simulateContract({
+            address: contractAddress,
+            account: connectedAddress,
+            abi: contractABI,
+            functionName: 'fund',
+            // value: BigInt(ethAmount * 1e18), // Convert ETH to Wei
+            value: parseEther(ethAmount),
+            chain: sepolia,
+         }
+        )
 
         console.log("Coffee bought! >>>>", parseEther(ethAmount));
 
