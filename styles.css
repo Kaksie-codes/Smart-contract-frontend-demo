@@ -40,6 +40,43 @@ header h1 {
   backdrop-filter: blur(6px);
 }
 
+.input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #e5e5e5;
+}
+
+.eth-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 1rem;
+  font-family: "Poppins", sans-serif;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(6px);
+}
+
+.eth-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.eth-input::placeholder {
+  color: #aaa;
+}
+
 .actions {
   display: flex;
   flex-direction: column;
