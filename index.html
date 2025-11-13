@@ -9,15 +9,22 @@
 </head>
 <body>
   <div class="app-container">
+    <nav class="navbar">
+      <div class="logo">
+        <h1>☕ Minimal DApp</h1>
+      </div>
+      <div class="wallet-section">
+        <div id="status" class="status">Status: Not connected</div>
+        <button id="connectBtn" class="btn primary">Connect Wallet</button>
+      </div>
+    </nav>
+
     <header>
-      <h1>☕ Minimal DApp</h1>
       <p>Interact with your smart contract directly from the browser</p>
     </header>
 
     <main>
       <div class="card">
-        <button id="connectBtn" class="btn primary">Connect Wallet</button>
-
         <div class="input-group">
           <label for="ethAmount" class="input-label">ETH Amount</label>
           <input 
@@ -36,7 +43,7 @@
           <button id="withdrawBtn" class="btn danger">Withdraw</button>
         </div>
 
-        <div id="status" class="status">Status: Not connected</div>
+       
       </div>
     </main>
 
