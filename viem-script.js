@@ -7,6 +7,10 @@ const connectBtn = document.getElementById("connectBtn");
 const statusDiv = document.getElementById("status");
 const buyBtn = document.getElementById("buyBtn");
 const ethAmountInput = document.getElementById("ethAmount");
+const ethPriceDisplay = document.getElementById("ethPrice");
+const walletBalanceDisplay = document.getElementById("walletBalance");
+const minDepositUSDDisplay = document.getElementById("minDepositUSD");
+const minDepositETHDisplay = document.getElementById("minDepositETH");
 
 let walletClient;
 let publicClient;
@@ -53,8 +57,16 @@ async function Connect() {
         });
         
         const balance = await publicClient.getBalance({ address });
+        const balanceInEth = Number(balance) / 1e18;
+        
         console.log("Balance:", balance, "wei");
-        console.log("Balance in ETH:", Number(balance) / 1e18);
+        console.log("Balance in ETH:", balanceInEth);
+        
+        // Update balance display in UI
+        if (walletBalanceDisplay) {
+            walletBalanceDisplay.textContent = `${balanceInEth.toFixed(4)} ETH`;
+            walletBalanceDisplay.classList.remove("loading");
+        }
         
         // Check minimum funding requirement
         try {
@@ -64,24 +76,41 @@ async function Connect() {
                 functionName: "mimimumDollarAmount",
             });
             
-            // Since getPrice() is internal, we can't call it directly.
-            // We'll estimate based on current market prices or use a conservative estimate.
-            // $5 USD typically requires around 0.002-0.003 ETH (depending on ETH price)
+            // Get the real-time ETH price from your contract!
+            const ethPriceWei = await publicClient.readContract({
+                address: contractAddress,
+                abi: contractABI,
+                functionName: "getPrice",
+            });
             
-            const minimumUSDAmount = Number(minimumUSD) / 1e18; // Convert to actual USD amount
+            const minimumUSDAmount = Number(minimumUSD) / 1e18; // $5 USD
+            const ethPriceUSD = Number(ethPriceWei) / 1e18; // Current ETH price in USD
+            const minimumEthRequired = minimumUSDAmount / ethPriceUSD; // Exact ETH needed for $5
+            
             console.log("Minimum funding requirement:", minimumUSDAmount, "USD");
+            console.log("Current ETH price:", ethPriceUSD.toFixed(2), "USD");
+            console.log("Exact minimum ETH needed:", minimumEthRequired.toFixed(6), "ETH");
             
-            // Conservative estimate: assume ETH is around $2500 (adjust as needed)
-            // This ensures we suggest a reasonable amount
-            const estimatedEthPrice = 2500; // USD per ETH
-            const estimatedMinimumEth = minimumUSDAmount / estimatedEthPrice;
+            // Update all UI displays
+            if (ethPriceDisplay) {
+                ethPriceDisplay.textContent = `$${ethPriceUSD.toFixed(2)}`;
+                ethPriceDisplay.classList.remove("loading");
+            }
             
-            console.log("Estimated minimum ETH needed (assuming $2500/ETH):", estimatedMinimumEth.toFixed(6));
+            if (minDepositUSDDisplay) {
+                minDepositUSDDisplay.textContent = `$${minimumUSDAmount.toFixed(2)}`;
+                minDepositUSDDisplay.classList.remove("loading");
+            }
             
-            // Update the input placeholder with estimated minimum requirement
+            if (minDepositETHDisplay) {
+                minDepositETHDisplay.textContent = `${minimumEthRequired.toFixed(6)} ETH`;
+                minDepositETHDisplay.classList.remove("loading");
+            }
+            
+            // Update the input placeholder with the exact minimum requirement
             if (ethAmountInput) {
-                ethAmountInput.placeholder = estimatedMinimumEth.toFixed(6);
-                ethAmountInput.setAttribute('min', estimatedMinimumEth.toString());
+                ethAmountInput.placeholder = minimumEthRequired.toFixed(6);
+                ethAmountInput.setAttribute('min', minimumEthRequired.toString());
             }
         } catch (error) {
             console.error("Error fetching minimum amount:", error);
@@ -89,12 +118,34 @@ async function Connect() {
             if (ethAmountInput) {
                 ethAmountInput.placeholder = "0.002";
             }
+            if (ethPriceDisplay) {
+                ethPriceDisplay.textContent = "Unable to fetch price";
+                ethPriceDisplay.classList.add("loading");
+            }
+            if (minDepositETHDisplay) {
+                minDepositETHDisplay.textContent = "Unable to calculate";
+                minDepositETHDisplay.classList.add("loading");
+            }
         }
         
       } catch (err) {
         console.error("Connection error:", err);
         connectBtn.textContent = "❌ Connection failed";
         statusDiv.textContent = "Connection failed";
+        
+        // Reset displays on connection failure
+        if (ethPriceDisplay) {
+            ethPriceDisplay.textContent = "Connection failed";
+            ethPriceDisplay.classList.add("loading");
+        }
+        if (walletBalanceDisplay) {
+            walletBalanceDisplay.textContent = "Connect Wallet";
+            walletBalanceDisplay.classList.add("loading");
+        }
+        if (minDepositETHDisplay) {
+            minDepositETHDisplay.textContent = "Connect Wallet";
+            minDepositETHDisplay.classList.add("loading");
+        }
       }
     } else {
       connectBtn.textContent = "No Wallet Detected";
@@ -148,17 +199,32 @@ async function BuyCoffee() {
                 functionName: "mimimumDollarAmount",
             });
             
+            // Get real-time ETH price for validation
+            const ethPriceWei = await publicClient.readContract({
+                address: contractAddress,
+                abi: contractABI,
+                functionName: "getPrice",
+            });
+            
             const minimumUSDAmount = Number(minimumUSD) / 1e18; // $5 USD
+            const ethPriceUSD = Number(ethPriceWei) / 1e18; // Current ETH price
             const userEthAmount = Number(ethAmount);
+            const userUSDAmount = userEthAmount * ethPriceUSD; // User's ETH in USD
+            const minimumEthRequired = minimumUSDAmount / ethPriceUSD; // Exact ETH needed for $5
             
             console.log("Minimum required:", minimumUSDAmount, "USD");
+            console.log("Current ETH price:", ethPriceUSD.toFixed(2), "USD");
             console.log("User sending:", userEthAmount, "ETH");
+            console.log("User's USD equivalent:", userUSDAmount.toFixed(2), "USD");
+            console.log("Minimum ETH needed:", minimumEthRequired.toFixed(6), "ETH");
             
-            // We can't pre-validate the USD equivalent since getPrice() is internal,
-            // so we'll let the contract do the validation.
-            // If it fails, the error message will be clear.
+            // Pre-validate before transaction
+            if (userUSDAmount < minimumUSDAmount) {
+                alert(`Insufficient amount! You need at least $${minimumUSDAmount} USD worth of ETH.\n\nYou're sending: $${userUSDAmount.toFixed(2)} USD\nMinimum required: ${minimumEthRequired.toFixed(6)} ETH`);
+                return;
+            }
             
-            console.log("Attempting transaction - contract will validate USD equivalent...");
+            console.log("✅ Amount validation passed - proceeding with transaction...");
             
             // Simulate the contract call first
             const { request } = await publicClient.simulateContract({

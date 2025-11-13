@@ -1,4 +1,4 @@
-export const contractAddress = "0xd4D9be815227A4fC113e592751eD650ACdeBE65F";
+export const contractAddress = "0x6248d029178E659639F30e43Ae98b2499EFbDC9C";
 
 export const contractABI = [
 	{
@@ -61,6 +61,19 @@ export const contractABI = [
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getPrice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",

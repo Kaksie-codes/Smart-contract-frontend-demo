@@ -19,38 +19,60 @@
       </div>
     </nav>
 
-    <header>
-      <p>Interact with your smart contract directly from the browser</p>
-    </header>
-
-    <main>
-      <div class="card">
-        <div class="input-group">
-          <label for="ethAmount" class="input-label">ETH Amount</label>
-          <input 
-            type="number" 
-            id="ethAmount" 
-            class="eth-input" 
-            placeholder="0.001" 
-            step="0.001" 
-            min="0"
-          />
+    <div class="content-container">
+      <header class="page-header">
+        <p>Interact with your smart contract directly from the browser</p>
+      </header>
+      <div class="app-container">
+        <main class="main-container">
+        <!-- Left side: Information Dashboard -->
+        <section class="info-dashboard">
+          <div class="info-card">
+            <div class="info-label">Current ETH Price</div>
+            <div id="ethPrice" class="info-value">Loading...</div>
+          </div>
+      
+          <div class="info-card">
+            <div class="info-label">Your Balance</div>
+            <div id="walletBalance" class="info-value">Connect Wallet</div>
+          </div>
+      
+          <div class="info-card">
+            <div class="info-label">Min Deposit (USD)</div>
+            <div id="minDepositUSD" class="info-value">$5.00</div>
+          </div>
+      
+          <div class="info-card">
+            <div class="info-label">Min Deposit (ETH)</div>
+            <div id="minDepositETH" class="info-value">Loading...</div>
+          </div>
+        </section>
+        <!-- Right side: Main Card -->
+        <div class="card">
+          <div class="input-group">
+            <label for="ethAmount" class="input-label">ETH Amount</label>
+            <input
+              type="number"
+              id="ethAmount"
+              class="eth-input"
+              placeholder="0.001"
+              step="0.001"
+              min="0"
+            />
+          </div>
+          <div class="actions">
+            <button id="buyBtn" class="btn">Buy Coffee</button>
+            <button id="balanceBtn" class="btn">Get Balance</button>
+            <button id="withdrawBtn" class="btn danger">Withdraw</button>
+          </div>
+          <div id="status" class="status">Status: Not connected</div>
         </div>
-
-        <div class="actions">
-          <button id="buyBtn" class="btn">Buy Coffee</button>
-          <button id="balanceBtn" class="btn">Get Balance</button>
-          <button id="withdrawBtn" class="btn danger">Withdraw</button>
-        </div>
-
-       
+      </main>
       </div>
-    </main>
-
-    <footer>
-      <p>Built for learning • Web3 Integration Demo</p>
-    </footer>
-  </div>
+      <footer class="page-footer">
+        <p>Built for learning • Web3 Integration Demo</p>
+      </footer>
+    </div>
 
   <!-- <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.min.js"></script> -->
   <script src="viem-script.js" type="module"></script>
