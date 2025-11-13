@@ -56,6 +56,41 @@ async function Connect() {
         console.log("Balance:", balance, "wei");
         console.log("Balance in ETH:", Number(balance) / 1e18);
         
+        // Check minimum funding requirement
+        try {
+            const minimumUSD = await publicClient.readContract({
+                address: contractAddress,
+                abi: contractABI,
+                functionName: "mimimumDollarAmount",
+            });
+            
+            // Since getPrice() is internal, we can't call it directly.
+            // We'll estimate based on current market prices or use a conservative estimate.
+            // $5 USD typically requires around 0.002-0.003 ETH (depending on ETH price)
+            
+            const minimumUSDAmount = Number(minimumUSD) / 1e18; // Convert to actual USD amount
+            console.log("Minimum funding requirement:", minimumUSDAmount, "USD");
+            
+            // Conservative estimate: assume ETH is around $2500 (adjust as needed)
+            // This ensures we suggest a reasonable amount
+            const estimatedEthPrice = 2500; // USD per ETH
+            const estimatedMinimumEth = minimumUSDAmount / estimatedEthPrice;
+            
+            console.log("Estimated minimum ETH needed (assuming $2500/ETH):", estimatedMinimumEth.toFixed(6));
+            
+            // Update the input placeholder with estimated minimum requirement
+            if (ethAmountInput) {
+                ethAmountInput.placeholder = estimatedMinimumEth.toFixed(6);
+                ethAmountInput.setAttribute('min', estimatedMinimumEth.toString());
+            }
+        } catch (error) {
+            console.error("Error fetching minimum amount:", error);
+            // Fallback placeholder if we can't fetch the exact amount
+            if (ethAmountInput) {
+                ethAmountInput.placeholder = "0.002";
+            }
+        }
+        
       } catch (err) {
         console.error("Connection error:", err);
         connectBtn.textContent = "❌ Connection failed";
@@ -104,7 +139,26 @@ async function BuyCoffee() {
 
             // Check balance first
             const balance = await publicClient.getBalance({ address: connectedAccount });
-            console.log("Account balance:", balance, "ETH");
+            console.log("Account balance:", balance, "wei");
+            
+            // Check minimum funding requirement ($5 USD worth of ETH)
+            const minimumUSD = await publicClient.readContract({
+                address: contractAddress,
+                abi: contractABI,
+                functionName: "mimimumDollarAmount",
+            });
+            
+            const minimumUSDAmount = Number(minimumUSD) / 1e18; // $5 USD
+            const userEthAmount = Number(ethAmount);
+            
+            console.log("Minimum required:", minimumUSDAmount, "USD");
+            console.log("User sending:", userEthAmount, "ETH");
+            
+            // We can't pre-validate the USD equivalent since getPrice() is internal,
+            // so we'll let the contract do the validation.
+            // If it fails, the error message will be clear.
+            
+            console.log("Attempting transaction - contract will validate USD equivalent...");
             
             // Simulate the contract call first
             const { request } = await publicClient.simulateContract({
