@@ -243,13 +243,13 @@ body {
 
 /*
   Info Dashboard Grid:
-  - 2x2 grid layout for blockchain data cards
-  - Equal columns for balanced visual weight
-  - Consistent spacing between cards
+  - 5 cards in responsive layout
+  - Auto-fit columns with minimum width
+  - Equal spacing between cards
 */
 .info-dashboard {
   display: grid;                       /* CSS Grid for card arrangement */
-  grid-template-columns: 1fr 1fr;      /* Two equal columns */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive columns */
   gap: 15px;                          /* Space between info cards */
 }
 
@@ -349,6 +349,50 @@ body {
   text-shadow: 0 0 8px rgba(236, 72, 153, 0.3); /* Pink glow effect */
 }
 
+/* Fifth card: Purple for Contract Balance (contract funds) */
+.info-card:nth-child(5) .info-value {
+  color: #8b5cf6;                      /* Purple color */
+  text-shadow: 0 0 8px rgba(139, 92, 246, 0.3); /* Purple glow effect */
+}
+
+/* Contract balance state indicators */
+.info-value.empty {
+  color: #9ca3af !important;           /* Gray for empty contract */
+  text-shadow: none !important;
+}
+
+.info-value.low {
+  color: #f59e0b !important;           /* Orange for low balance */
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.3) !important;
+}
+
+.info-value.funded {
+  color: #10b981 !important;           /* Green for well-funded contract */
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Fifth card: Purple for Contract Balance (contract funds) */
+.info-card:nth-child(5) .info-value {
+  color: #8b5cf6;                      /* Purple color */
+  text-shadow: 0 0 8px rgba(139, 92, 246, 0.3); /* Purple glow effect */
+}
+
+/* Contract balance state indicators */
+.info-value.empty {
+  color: #9ca3af;                      /* Gray for empty contract */
+  text-shadow: none;
+}
+
+.info-value.low {
+  color: #f59e0b;                      /* Orange for low balance */
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+}
+
+.info-value.funded {
+  color: #10b981;                      /* Green for well-funded contract */
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+}
+
 /*
   Loading State Styling:
   - Visual feedback when data is being fetched
@@ -392,7 +436,7 @@ body {
   }
   
   .info-dashboard {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Flexible columns */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Flexible columns for 5 cards */
     margin-bottom: 20px;              /* Space before transaction card */
   }
 }
@@ -405,7 +449,7 @@ body {
 */
 @media (max-width: 768px) {
   .info-dashboard {
-    grid-template-columns: repeat(2, 1fr); /* 2x2 grid layout */
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Flexible columns for mobile */
     gap: 12px;                        /* Smaller gaps for mobile */
   }
   
@@ -422,7 +466,7 @@ body {
 */
 @media (max-width: 480px) {
   .info-dashboard {
-    grid-template-columns: 1fr;       /* Single column on small screens */
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on very small screens */
     gap: 10px;                        /* Minimal gaps */
   }
   

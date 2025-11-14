@@ -150,6 +150,22 @@
               <div class="info-label">Min Deposit (ETH)</div>
               <div id="minDepositETH" class="info-value">Loading...</div>
             </div>
+            
+            <!-- 
+              CONTRACT BALANCE DISPLAY
+              Shows total ETH collected in the smart contract from all users
+              
+              Educational Value:
+              - Demonstrates how contracts can hold funds
+              - Shows transparency in DeFi applications
+              - Useful for contract owner to see available funds
+              - Helps users understand the scale of contract usage
+            -->
+            <div class="info-card">
+              <div class="info-label">Contract Balance</div>
+              <!-- Total ETH collected from all coffee purchases -->
+              <div id="contractBalance" class="info-value loading">Loading...</div>
+            </div>
           </section>
           
           <!-- 
@@ -203,25 +219,28 @@
                 4. Sends ETH to contract
                 5. Updates user's recorded funding amount
               -->
-              <button id="buyBtn" class="btn">Buy Coffee</button>
+              <button id="buyBtn" class="btn primary">Buy Coffee ☕</button>
               
               <!-- 
-                GET BALANCE BUTTON
-                Utility function - could show contract balance or user's contribution
-                (Implementation can be added as needed)
+                GET CONTRACT BALANCE BUTTON
+                Shows total ETH collected in the smart contract from all users
+                Refreshes the contract balance display in real-time
               -->
-              <button id="balanceBtn" class="btn">Get Balance</button>
+              <button id="balanceBtn" class="btn">Refresh Balance 🔄</button>
               
               <!-- 
                 WITHDRAW BUTTON
                 Administrative function - only contract owner can withdraw funds
                 
-                Security Note:
+                Security Features:
+                - Checks if connected wallet is the contract owner
+                - Shows confirmation dialog with withdrawal amount
+                - Updates all displays after successful withdrawal
                 - This will fail for non-owner addresses
                 - Smart contract enforces access control
                 - Demonstrates ownership patterns in smart contracts
               -->
-              <button id="withdrawBtn" class="btn danger">Withdraw</button>
+              <button id="withdrawBtn" class="btn danger">Withdraw Funds 💰</button>
             </div>
             
             <!-- 

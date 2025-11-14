@@ -75,6 +75,7 @@ const ethPriceDisplay = document.getElementById("ethPrice");           // Curren
 const walletBalanceDisplay = document.getElementById("walletBalance"); // User's ETH balance
 const minDepositUSDDisplay = document.getElementById("minDepositUSD"); // Minimum deposit in USD
 const minDepositETHDisplay = document.getElementById("minDepositETH"); // Minimum deposit in ETH
+const contractBalanceDisplay = document.getElementById("contractBalance"); // Contract's total ETH balance
 
 // ==================================================================================
 // BLOCKCHAIN CLIENT VARIABLES - Global state for blockchain connections
@@ -164,6 +165,12 @@ async function Connect() {
             */
             const [address] = await walletClient.requestAddresses();
             console.log("Connected address:", address);
+            
+            // Save connection state for persistence
+            isConnected = true;
+            connectedAddress = address;
+            localStorage.setItem('walletConnected', 'true');
+            localStorage.setItem('walletAddress', address);
             
             /*
               STEP 5: Update UI for successful connection
@@ -313,6 +320,14 @@ async function Connect() {
                     ethAmountInput.setAttribute('min', minimumEthRequired.toString());
                 }
                 
+                /*
+                  Fetch contract balance
+                  
+                  Show total funds collected in the contract
+                  Useful information for users and owner
+                */
+                await getContractBalance();
+                
             } catch (error) {
                 /*
                   Handle errors in contract data fetching
@@ -353,6 +368,12 @@ async function Connect() {
             connectBtn.textContent = "❌ Connection failed";
             statusDiv.textContent = "Connection failed";
             
+            // Clear connection state on failure
+            isConnected = false;
+            connectedAddress = null;
+            localStorage.removeItem('walletConnected');
+            localStorage.removeItem('walletAddress');
+            
             // Reset all displays on connection failure
             if (ethPriceDisplay) {
                 ethPriceDisplay.textContent = "Connection failed";
@@ -383,7 +404,319 @@ async function Connect() {
 }
 
 // ==================================================================================
-// BUY COFFEE FUNCTION - Smart Contract Transaction
+// CONTRACT BALANCE FUNCTION - Get total funds in the contract
+// ==================================================================================
+
+/*
+  Get Contract Balance Function:
+  - Fetches the total ETH balance stored in the smart contract
+  - Shows how much has been collected from all users
+  - Useful for contract owner to see available funds
+  - Updates the UI with real-time balance information
+*/
+async function getContractBalance() {
+  console.log('getting balance');
+    /*
+      Check if we have a public client available
+      
+      We need a client to read blockchain data
+      If no client exists, user probably isn't connected
+    */
+    if (!publicClient) {
+        console.log('No public client available for balance check');
+        if (contractBalanceDisplay) {
+            contractBalanceDisplay.textContent = 'Connect Wallet';
+            contractBalanceDisplay.classList.add('loading');
+        }
+        return;
+    }
+    
+    try {
+        /*
+          Fetch contract balance using getBalance
+          
+          This gets the total ETH stored at the contract address
+          Same function used for wallet balances, but with contract address
+          Balance is returned in wei (smallest ETH unit)
+        */
+        console.log('Fetching contract balance...');
+        
+        const contractBalanceWei = await publicClient.getBalance({ 
+            address: contractAddress 
+        });
+        
+        /*
+          Convert wei to ETH for human-readable display
+          
+          1 ETH = 1,000,000,000,000,000,000 wei (10^18)
+          Division converts wei to ETH with decimal precision
+        */
+        const contractBalanceEth = Number(contractBalanceWei) / 1e18;
+        
+        console.log('Contract balance:', contractBalanceWei, 'wei');
+        console.log('Contract balance in ETH:', contractBalanceEth);
+        
+        /*
+          Update UI display with formatted balance
+          
+          Shows balance with appropriate decimal places
+          Removes loading state when data is available
+        */
+        if (contractBalanceDisplay) {
+            // Format balance with 6 decimal places for precision
+            contractBalanceDisplay.textContent = `${contractBalanceEth.toFixed(6)} ETH`;
+            contractBalanceDisplay.classList.remove('loading');
+            
+            /*
+              Add visual indicator based on balance amount
+              
+              Different styling based on how much ETH is in contract:
+              - Empty: Gray text
+              - Small amount: Yellow text  
+              - Significant amount: Green text
+            */
+            contractBalanceDisplay.classList.remove('empty', 'low', 'funded');
+            
+            if (contractBalanceEth === 0) {
+                contractBalanceDisplay.classList.add('empty');
+            } else if (contractBalanceEth < 0.01) {
+                contractBalanceDisplay.classList.add('low');
+            } else {
+                contractBalanceDisplay.classList.add('funded');
+            }
+        }
+        
+        /*
+          Return balance for use by other functions
+          
+          Other parts of the app might need the balance value
+          Return both wei and ETH formats
+        */
+        return {
+            wei: contractBalanceWei,
+            eth: contractBalanceEth
+        };
+        
+    } catch (error) {
+        /*
+          Handle errors in balance fetching
+          
+          Possible errors:
+          - Network connectivity issues
+          - Contract doesn't exist at address
+          - RPC provider problems
+          - Invalid contract address
+        */
+        console.error('Error fetching contract balance:', error);
+        
+        if (contractBalanceDisplay) {
+            contractBalanceDisplay.textContent = 'Error loading balance';
+            contractBalanceDisplay.classList.add('loading');
+        }
+        
+        return null;
+    }
+}
+
+/*
+  Check if user is contract owner
+  
+  This function determines if the connected wallet
+  is the contract owner (who deployed it)
+*/
+async function checkIfOwner() {
+    if (!publicClient || !connectedAddress) {
+        return false;
+    }
+    
+    try {
+        /*
+          Get contract owner address
+          
+          Calls the owner() view function on the contract
+          Returns the address of whoever deployed the contract
+        */
+        const ownerAddress = await publicClient.readContract({
+            address: contractAddress,
+            abi: contractABI,
+            functionName: "owner",
+        });
+        
+        /*
+          Compare addresses (case-insensitive)
+          
+          Ethereum addresses can be in different cases
+          Convert both to lowercase for accurate comparison
+        */
+        const isOwner = ownerAddress.toLowerCase() === connectedAddress.toLowerCase();
+        
+        console.log('Contract owner:', ownerAddress);
+        console.log('Connected address:', connectedAddress);
+        console.log('Is owner:', isOwner);
+        
+        return isOwner;
+        
+    } catch (error) {
+        console.error('Error checking owner status:', error);
+        return false;
+    }
+}
+
+// ==================================================================================
+// WITHDRAW FUNCTION - Owner-only fund extraction
+// ==================================================================================
+
+/*
+  Withdraw Function:
+  - Allows contract owner to withdraw all funds
+  - Security: Only owner can call this function
+  - Transfers entire contract balance to owner's wallet
+  - Updates UI after successful withdrawal
+*/
+async function withdrawFunds() {
+    /*
+      Verify user is connected
+      
+      Can't withdraw without wallet connection
+    */
+    if (!walletClient || !connectedAddress) {
+        alert('Please connect your wallet first');
+        return;
+    }
+    
+    try {
+        /*
+          Check if user is contract owner
+          
+          Only owner should be able to withdraw
+          Prevents unauthorized fund access
+        */
+        const isOwner = await checkIfOwner();
+        
+        if (!isOwner) {
+            alert('Only the contract owner can withdraw funds');
+            return;
+        }
+        
+        /*
+          Get current contract balance
+          
+          Show user how much they're withdrawing
+          Don't attempt withdrawal if balance is zero
+        */
+        const balanceInfo = await getContractBalance();
+        
+        if (!balanceInfo || balanceInfo.eth === 0) {
+            alert('No funds available to withdraw');
+            return;
+        }
+        
+        /*
+          Confirm withdrawal with user
+          
+          Show exact amount being withdrawn
+          Give user chance to cancel
+        */
+        const confirmWithdraw = confirm(
+            `Withdraw ${balanceInfo.eth.toFixed(6)} ETH from the contract?\n\n` +
+            `This will transfer all funds to your wallet: ${connectedAddress.substring(0, 6)}...${connectedAddress.slice(-4)}`
+        );
+        
+        if (!confirmWithdraw) {
+            console.log('Withdrawal cancelled by user');
+            return;
+        }
+        
+        console.log('Initiating withdrawal...');
+        
+        /*
+          Simulate withdrawal transaction
+          
+          Test the transaction before sending
+          Catches errors before spending gas
+        */
+        const { request } = await publicClient.simulateContract({
+            address: contractAddress,
+            account: connectedAddress,
+            abi: contractABI,
+            functionName: "withdraw",
+        });
+        
+        /*
+          Execute withdrawal transaction
+          
+          Calls the contract's withdraw function
+          User will see MetaMask popup to confirm
+        */
+        statusDiv.textContent = 'Withdrawal pending...';
+        
+        const hash = await walletClient.writeContract(request);
+        console.log('Withdrawal transaction hash:', hash);
+        
+        /*
+          Wait for transaction confirmation
+          
+          Blockchain transactions take time to process
+          Wait for network confirmation before updating UI
+        */
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        console.log('Withdrawal confirmed:', receipt);
+        
+        /*
+          Update UI after successful withdrawal
+          
+          Refresh all relevant displays:
+          - Contract balance (should be 0)
+          - User's wallet balance (should increase)
+          - Status message
+        */
+        statusDiv.textContent = `Withdrawal successful! Tx: ${hash.substring(0, 10)}...`;
+        
+        // Refresh contract balance (should now be 0)
+        await getContractBalance();
+        
+        // Refresh user's wallet balance
+        if (publicClient && connectedAddress) {
+            const balance = await publicClient.getBalance({ address: connectedAddress });
+            const balanceInEth = Number(balance) / 1e18;
+            
+            if (walletBalanceDisplay) {
+                walletBalanceDisplay.textContent = `${balanceInEth.toFixed(4)} ETH`;
+            }
+        }
+        
+        console.log('✅ Withdrawal completed successfully');
+        
+    } catch (error) {
+        /*
+          Handle withdrawal errors
+          
+          Common errors:
+          - User rejects transaction
+          - Insufficient gas
+          - Contract security restrictions
+          - Network congestion
+        */
+        console.error('Withdrawal failed:', error);
+        
+        // Parse error for user-friendly message
+        let errorMessage = 'Withdrawal failed';
+        
+        if (error.message.includes('user rejected')) {
+            errorMessage = 'Withdrawal cancelled by user';
+        } else if (error.message.includes('insufficient funds')) {
+            errorMessage = 'Insufficient gas for withdrawal';
+        } else if (error.message.includes('Ownable: caller is not the owner')) {
+            errorMessage = 'Only contract owner can withdraw funds';
+        }
+        
+        statusDiv.textContent = errorMessage;
+        alert(errorMessage);
+    }
+}
+
+// ==================================================================================
+// BUY COFFEE FUNCTION - Smart Contract Transaction (Updated)
 // ==================================================================================
 
 /*
@@ -558,6 +891,24 @@ async function BuyCoffee() {
             */
             statusDiv.textContent = `Coffee bought! Tx: ${hash.substring(0, 10)}...`;
             
+            /*
+              Refresh displays after successful transaction
+              
+              Update contract balance to show new funds
+              Update user's wallet balance to show spent ETH
+            */
+            
+            // Refresh contract balance (should increase)
+            await getContractBalance();
+            
+            // Refresh user's wallet balance (should decrease)
+            const newBalance = await publicClient.getBalance({ address: connectedAccount });
+            const newBalanceInEth = Number(newBalance) / 1e18;
+            
+            if (walletBalanceDisplay) {
+                walletBalanceDisplay.textContent = `${newBalanceInEth.toFixed(4)} ETH`;
+            }
+            
             // Optional: Clear input field for next transaction
             ethAmountInput.value = '';
 
@@ -608,38 +959,130 @@ async function BuyCoffee() {
   - More maintainable code
 */
 
+
+// ==================================================================================
+// EVENT LISTENERS - Connect UI to functions
+// ==================================================================================
+
+
 // Connect wallet when user clicks connect button
 connectBtn.addEventListener("click", Connect);
 
 // Execute transaction when user clicks buy coffee button
 buyBtn.addEventListener("click", BuyCoffee);
 
+// Add event listener for balance refresh button (if it exists)
+const balanceBtn = document.getElementById("balanceBtn");
+if (balanceBtn) {
+    balanceBtn.addEventListener("click", getContractBalance);
+}
+
+// Add event listener for withdraw button (if it exists)
+const withdrawBtn = document.getElementById("withdrawBtn");
+if (withdrawBtn) {
+    withdrawBtn.addEventListener("click", withdrawFunds);
+}
+
+// Refresh contract balance every 30 seconds (optional)
+setInterval(async () => {
+    if (publicClient && isConnected) {
+        await getContractBalance();
+    }
+}, 30000);
+
+/*
+  Handle MetaMask account and network changes
+*/
+if (typeof window.ethereum !== "undefined") {
+    // Handle account changes
+    window.ethereum.on('accountsChanged', (accounts) => {
+        console.log('Accounts changed:', accounts);
+        
+        if (accounts.length === 0) {
+            // User disconnected
+            isConnected = false;
+            connectedAddress = null;
+            localStorage.removeItem('walletConnected');
+            localStorage.removeItem('walletAddress');
+            
+            // Reset UI
+            connectBtn.textContent = "Connect Wallet";
+            statusDiv.textContent = "Wallet disconnected";
+            
+            const walletAddressElement = document.getElementById("walletAddress");
+            if (walletAddressElement) {
+                walletAddressElement.textContent = "Not Connected";
+                walletAddressElement.classList.remove("connected");
+            }
+            
+            // Reset displays
+            if (walletBalanceDisplay) {
+                walletBalanceDisplay.textContent = "Connect Wallet";
+                walletBalanceDisplay.classList.add("loading");
+            }
+            
+            if (contractBalanceDisplay) {
+                contractBalanceDisplay.textContent = "Connect Wallet";
+                contractBalanceDisplay.classList.add("loading");
+            }
+            
+        } else if (accounts[0] !== connectedAddress) {
+            // Account switched
+            localStorage.setItem('walletAddress', accounts[0]);
+            autoReconnect();
+        }
+    });
+    
+    // Handle network changes
+    window.ethereum.on('chainChanged', (chainId) => {
+        console.log('Network changed to:', chainId);
+        
+        if (chainId === '0xaa36a7' && isConnected) {
+            setTimeout(() => {
+                if (isConnected) {
+                    autoReconnect();
+                }
+            }, 1000);
+        }
+    });
+}
+
 /*
   ADDITIONAL FEATURES FOR STUDENTS TO IMPLEMENT:
   
-  1. Balance Button Function:
-     - Show contract balance
-     - Show user's contribution amount
-     - Display funding history
+  1. ✅ CONTRACT BALANCE FEATURES (IMPLEMENTED):
+     - ✅ getContractBalance(): Shows total ETH in contract
+     - ✅ withdrawFunds(): Owner-only fund extraction
+     - ✅ checkIfOwner(): Verify owner permissions
+     - ✅ Auto-refresh balance after transactions
   
-  2. Withdraw Button Function:
-     - Check if user is contract owner
-     - Call contract's withdraw function
-     - Handle owner-only access control
+  2. ENHANCED BALANCE FEATURES:
+     - Show individual user contribution amounts
+     - Display funding history and transaction list
+     - Add balance change notifications
+     - Show USD equivalent of contract balance
   
-  3. Real-time Updates:
-     - Auto-refresh balance when transactions complete
-     - Listen for blockchain events
-     - Update UI when other users interact with contract
+  3. REAL-TIME UPDATES:
+     - Auto-refresh balance when other users interact
+     - Listen for blockchain events from the contract
+     - WebSocket connections for live updates
+     - Notification system for new transactions
   
-  4. Error Recovery:
-     - Automatic retry for failed transactions
-     - Better error messages for different scenarios
-     - Network connectivity detection
+  4. ADVANCED OWNER FEATURES:
+     - Partial withdrawal functionality
+     - Multi-signature wallet integration
+     - Automatic withdrawal scheduling
+     - Emergency pause/unpause functions
   
-  5. Enhanced UX:
-     - Loading spinners during transactions
+  5. USER EXPERIENCE IMPROVEMENTS:
      - Transaction history display
-     - Gas fee estimation
-     - Transaction success animations
+     - Gas fee estimation and optimization
+     - Batch transaction capabilities
+     - Mobile-responsive balance cards
+  
+  6. SECURITY ENHANCEMENTS:
+     - Rate limiting for transactions
+     - Maximum transaction amount limits
+     - Multi-factor authentication for withdrawals
+     - Audit trail for all contract interactions
 */
