@@ -93,6 +93,10 @@ const contractBalanceDisplay = document.getElementById("contractBalance"); // Co
 let walletClient;    // For transactions that require user signature (sending ETH, calling contract functions)
 let publicClient;    // For reading blockchain data (balances, prices, contract state)
 
+// Connection state variables
+let isConnected = false;     // Track wallet connection status
+let connectedAddress = null; // Store connected wallet address
+
 // ==================================================================================
 // WALLET CONNECTION FUNCTION - Core Web3 functionality
 // ==================================================================================

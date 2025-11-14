@@ -242,15 +242,37 @@ body {
    ================================================================================== */
 
 /*
-  Info Dashboard Grid:
-  - 5 cards in responsive layout
-  - Auto-fit columns with minimum width
-  - Equal spacing between cards
+  Info Dashboard Layout:
+  - Contract Balance card spans full width at top
+  - Remaining cards in 2x2 grid below
+  - Responsive design with proper spacing
 */
 .info-dashboard {
-  display: grid;                       /* CSS Grid for card arrangement */
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive columns */
-  gap: 15px;                          /* Space between info cards */
+  display: flex;                       /* Flexbox for vertical stacking */
+  flex-direction: column;              /* Stack contract balance above grid */
+  gap: 15px;                          /* Space between sections */
+}
+
+/*
+  Contract Balance Card (Full Width):
+  - Spans entire width at top of dashboard
+  - Emphasizes the most important metric
+  - Larger visual prominence
+*/
+.contract-balance-card {
+  width: 100%;                         /* Full width of container */
+}
+
+/*
+  Info Grid (2x2 Layout):
+  - Two columns with equal spacing
+  - Responsive design for mobile
+  - Clean organization of secondary metrics
+*/
+.info-grid {
+  display: grid;                       /* CSS Grid for 2x2 layout */
+  grid-template-columns: 1fr 1fr;      /* Two equal columns */
+  gap: 15px;                          /* Space between cards */
 }
 
 /*
@@ -426,7 +448,7 @@ body {
 /*
   Tablet Breakpoint (1024px and below):
   - Switch from side-by-side to stacked layout
-  - Maintain info dashboard grid but improve spacing
+  - Maintain 2x2 grid for info cards
   - Prioritize vertical space efficiency
 */
 @media (max-width: 1024px) {
@@ -434,22 +456,17 @@ body {
     grid-template-columns: 1fr;       /* Single column layout */
     gap: 20px;                        /* Reduced gap for mobile */
   }
-  
-  .info-dashboard {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Flexible columns for 5 cards */
-    margin-bottom: 20px;              /* Space before transaction card */
-  }
 }
 
 /*
   Mobile Breakpoint (768px and below):
-  - Maintain 2x2 grid for info cards
+  - Stack info grid to single column for very small screens
   - Reduce text sizes for smaller screens
   - Optimize touch targets and spacing
 */
 @media (max-width: 768px) {
-  .info-dashboard {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Flexible columns for mobile */
+  .info-grid {
+    grid-template-columns: 1fr;       /* Single column for mobile */
     gap: 12px;                        /* Smaller gaps for mobile */
   }
   

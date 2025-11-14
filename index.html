@@ -95,64 +95,7 @@
           <section class="info-dashboard">
             
             <!-- 
-              ETH PRICE DISPLAY
-              Shows current Ethereum price in USD from Chainlink price feeds
-              
-              Educational Notes:
-              - Price comes from decentralized oracle (Chainlink)
-              - Updates in real-time when wallet connects
-              - Critical for understanding transaction values
-            -->
-            <div class="info-card">
-              <div class="info-label">Current ETH Price</div>
-              <div id="ethPrice" class="info-value">Loading...</div>
-            </div>
-        
-            <!-- 
-              USER BALANCE DISPLAY
-              Shows user's ETH balance from their connected wallet
-              
-              Why important?
-              - Users can see if they have enough funds
-              - Prevents insufficient balance errors
-              - Builds confidence in transaction capabilities
-            -->
-            <div class="info-card">
-              <div class="info-label">Your Balance</div>
-              <div id="walletBalance" class="info-value">Connect Wallet</div>
-            </div>
-        
-            <!-- 
-              MINIMUM DEPOSIT (USD)
-              Shows the smart contract's minimum funding requirement in USD
-              
-              Educational Notes:
-              - This is hardcoded in the smart contract ($5 USD)
-              - Prevents small, uneconomical transactions
-              - Ensures meaningful participation
-            -->
-            <div class="info-card">
-              <div class="info-label">Min Deposit (USD)</div>
-              <div id="minDepositUSD" class="info-value">$5.00</div>
-            </div>
-        
-            <!-- 
-              MINIMUM DEPOSIT (ETH)
-              Shows the ETH equivalent of the minimum USD requirement
-              
-              Why calculate this?
-              - ETH price fluctuates constantly
-              - Users think in ETH amounts when transacting
-              - Provides exact amount needed for successful transaction
-              - Calculated as: $5 USD ÷ Current ETH Price = Minimum ETH needed
-            -->
-            <div class="info-card">
-              <div class="info-label">Min Deposit (ETH)</div>
-              <div id="minDepositETH" class="info-value">Loading...</div>
-            </div>
-            
-            <!-- 
-              CONTRACT BALANCE DISPLAY
+              CONTRACT BALANCE DISPLAY (FULL WIDTH TOP)
               Shows total ETH collected in the smart contract from all users
               
               Educational Value:
@@ -161,10 +104,73 @@
               - Useful for contract owner to see available funds
               - Helps users understand the scale of contract usage
             -->
-            <div class="info-card">
+            <div class="info-card contract-balance-card">
               <div class="info-label">Contract Balance</div>
               <!-- Total ETH collected from all coffee purchases -->
               <div id="contractBalance" class="info-value loading">Loading...</div>
+            </div>
+            
+            <!-- 
+              TWO-COLUMN GRID FOR REMAINING INFO CARDS
+              Organized in a clean 2x2 layout for optimal space usage
+            -->
+            <div class="info-grid">
+              <!-- 
+                ETH PRICE DISPLAY
+                Shows current Ethereum price in USD from Chainlink price feeds
+                
+                Educational Notes:
+                - Price comes from decentralized oracle (Chainlink)
+                - Updates in real-time when wallet connects
+                - Critical for understanding transaction values
+              -->
+              <div class="info-card">
+                <div class="info-label">Current ETH Price</div>
+                <div id="ethPrice" class="info-value">Loading...</div>
+              </div>
+          
+              <!-- 
+                USER BALANCE DISPLAY
+                Shows user's ETH balance from their connected wallet
+                
+                Why important?
+                - Users can see if they have enough funds
+                - Prevents insufficient balance errors
+                - Builds confidence in transaction capabilities
+              -->
+              <div class="info-card">
+                <div class="info-label">Your Balance</div>
+                <div id="walletBalance" class="info-value">Connect Wallet</div>
+              </div>
+          
+              <!-- 
+                MINIMUM DEPOSIT (USD)
+                Shows the smart contract's minimum funding requirement in USD
+                
+                Educational Notes:
+                - This is hardcoded in the smart contract ($5 USD)
+                - Prevents small, uneconomical transactions
+                - Ensures meaningful participation
+              -->
+              <div class="info-card">
+                <div class="info-label">Min Deposit (USD)</div>
+                <div id="minDepositUSD" class="info-value">$5.00</div>
+              </div>
+          
+              <!-- 
+                MINIMUM DEPOSIT (ETH)
+                Shows the ETH equivalent of the minimum USD requirement
+                
+                Why calculate this?
+                - ETH price fluctuates constantly
+                - Users think in ETH amounts when transacting
+                - Provides exact amount needed for successful transaction
+                - Calculated as: $5 USD ÷ Current ETH Price = Minimum ETH needed
+              -->
+              <div class="info-card">
+                <div class="info-label">Min Deposit (ETH)</div>
+                <div id="minDepositETH" class="info-value">Loading...</div>
+              </div>
             </div>
           </section>
           
