@@ -98,6 +98,57 @@ let isConnected = false;     // Track wallet connection status
 let connectedAddress = null; // Store connected wallet address
 
 // ==================================================================================
+// BUTTON LOADING STATE UTILITIES - Manage button states during operations
+// ==================================================================================
+
+/*
+  Button Loading State Management:
+  - Shows users that operations are in progress
+  - Prevents multiple clicks during processing
+  - Provides visual feedback for blockchain operations
+  - Restores original button text after completion
+*/
+
+/*
+  Set button to loading state:
+  - Disables button to prevent multiple clicks
+  - Changes text to show loading with spinner
+  - Stores original text for restoration
+*/
+function setButtonLoading(button, loadingText) {
+    if (!button) return;
+    
+    // Store original text if not already stored
+    if (!button.dataset.originalText) {
+        button.dataset.originalText = button.textContent;
+    }
+    
+    // Update button appearance
+    button.disabled = true;
+    button.textContent = loadingText;
+    button.classList.add('loading');
+}
+
+/*
+  Restore button to normal state:
+  - Re-enables button for interaction
+  - Restores original button text
+  - Removes loading styling
+*/
+function setButtonNormal(button) {
+    if (!button) return;
+    
+    // Restore original text
+    if (button.dataset.originalText) {
+        button.textContent = button.dataset.originalText;
+    }
+    
+    // Restore button functionality
+    button.disabled = false;
+    button.classList.remove('loading');
+}
+
+// ==================================================================================
 // WALLET CONNECTION FUNCTION - Core Web3 functionality
 // ==================================================================================
 
@@ -415,7 +466,14 @@ async function Connect() {
   - Updates the UI with real-time balance information
 */
 async function getContractBalance() {
-  console.log('getting balance');
+    console.log('Getting contract balance...');
+    
+    // Get the balance refresh button
+    const balanceBtn = document.getElementById("balanceBtn");
+    
+    // Set loading state
+    setButtonLoading(balanceBtn, "🔄 Loading...");
+    
     /*
       Check if we have a public client available
       
@@ -492,6 +550,10 @@ async function getContractBalance() {
           Other parts of the app might need the balance value
           Return both wei and ETH formats
         */
+        
+        // Restore button state on success
+        setButtonNormal(balanceBtn);
+        
         return {
             wei: contractBalanceWei,
             eth: contractBalanceEth
@@ -513,6 +575,9 @@ async function getContractBalance() {
             contractBalanceDisplay.textContent = 'Error loading balance';
             contractBalanceDisplay.classList.add('loading');
         }
+        
+        // Restore button state on error
+        setButtonNormal(balanceBtn);
         
         return null;
     }
@@ -574,6 +639,9 @@ async function checkIfOwner() {
   - Updates UI after successful withdrawal
 */
 async function withdrawFunds() {
+    // Get the withdraw button
+    const withdrawBtn = document.getElementById("withdrawBtn");
+    
     /*
       Verify user is connected
       
@@ -583,6 +651,9 @@ async function withdrawFunds() {
         alert('Please connect your wallet first');
         return;
     }
+    
+    // Set loading state
+    setButtonLoading(withdrawBtn, "🔄 Processing...");
     
     try {
         /*
@@ -687,6 +758,9 @@ async function withdrawFunds() {
         
         console.log('✅ Withdrawal completed successfully');
         
+        // Restore button state on success
+        setButtonNormal(withdrawBtn);
+        
     } catch (error) {
         /*
           Handle withdrawal errors
@@ -712,6 +786,9 @@ async function withdrawFunds() {
         
         statusDiv.textContent = errorMessage;
         alert(errorMessage);
+        
+        // Restore button state on error
+        setButtonNormal(withdrawBtn);
     }
 }
 
@@ -729,6 +806,9 @@ async function withdrawFunds() {
   6. Update UI with results
 */
 async function BuyCoffee() {
+    // Get the buy coffee button
+    const buyBtn = document.getElementById("buyBtn");
+    
     /*
       STEP 1: Input validation
       
@@ -742,6 +822,9 @@ async function BuyCoffee() {
     }
     
     console.log(`Buying coffee for ${ethAmount} ETH`);
+    
+    // Set loading state
+    setButtonLoading(buyBtn, "☕ Brewing...");
     
     /*
       STEP 2: Check MetaMask availability
@@ -911,6 +994,9 @@ async function BuyCoffee() {
             
             // Optional: Clear input field for next transaction
             ethAmountInput.value = '';
+            
+            // Restore button state on success
+            setButtonNormal(buyBtn);
 
         } catch (error) {
             /*
@@ -933,6 +1019,9 @@ async function BuyCoffee() {
             } else if (error.message.includes("didn't send enough ETH")) {
                 statusDiv.textContent = "Amount too low - need at least $5 USD worth of ETH";
             }
+            
+            // Restore button state on error
+            setButtonNormal(buyBtn);
         }
     } else {
         /*
@@ -942,6 +1031,9 @@ async function BuyCoffee() {
         */
         alert("Please install MetaMask to use this DApp!");
         statusDiv.textContent = "MetaMask required for transactions";
+        
+        // Restore button state when MetaMask not available
+        setButtonNormal(buyBtn);
     }
 }
 

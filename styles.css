@@ -586,6 +586,42 @@ body {
   background: #dc2626;                 /* Darker red on hover */
 }
 
+/*
+  Button Loading States:
+  - Visual feedback during blockchain operations
+  - Prevents multiple clicks during processing
+  - Indicates operation is in progress
+*/
+.btn.loading {
+  opacity: 0.7;                        /* Dimmed appearance during loading */
+  cursor: not-allowed;                 /* Show operation not available */
+  position: relative;                  /* For pseudo-element positioning */
+  pointer-events: none;                /* Prevent additional clicks */
+}
+
+/*
+  Loading Button Animation:
+  - Subtle pulse effect to indicate activity
+  - Smooth animation for professional feel
+*/
+.btn.loading {
+  animation: buttonPulse 1.5s ease-in-out infinite;
+}
+
+/*
+  Button Pulse Animation Keyframes:
+  - Gentle opacity transition
+  - Creates breathing effect
+*/
+@keyframes buttonPulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
 /* ==================================================================================
    STATUS AND FEEDBACK ELEMENTS - User communication
    ================================================================================== */
