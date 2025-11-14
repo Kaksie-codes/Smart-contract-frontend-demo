@@ -1,81 +1,271 @@
 <!DOCTYPE html>
+<!-- 
+  MINIMAL DAPP HTML STRUCTURE
+  
+  This is the main HTML file for our decentralized application (DApp).
+  A DApp is a web application that interacts with blockchain smart contracts.
+  
+  Key Learning Points:
+  1. Standard HTML5 structure with modern semantic elements
+  2. External dependencies for fonts and styling
+  3. Modular JavaScript imports using ES6 modules
+  4. Separation of concerns: HTML (structure), CSS (styling), JS (functionality)
+-->
 <html lang="en">
 <head>
+  <!-- Standard meta tags for proper rendering and SEO -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Minimal DApp</title>
+  
+  <!-- External Google Fonts - Professional typography for better UX -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Our custom CSS file - keeps styling separate from HTML structure -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- 
+    MAIN APPLICATION CONTAINER
+    This wraps our entire DApp interface
+  -->
   <div class="app-container">
+    
+    <!-- 
+      NAVIGATION BAR
+      Contains our app branding and wallet connection controls
+      
+      Why fixed positioning? 
+      - Always visible to users
+      - Professional web app feel
+      - Easy access to wallet connection
+    -->
     <nav class="navbar">
+      <!-- App branding/logo section -->
       <div class="logo">
         <h1>☕ Minimal DApp</h1>
       </div>
+      
+      <!-- 
+        WALLET CONNECTION SECTION
+        This is where users see their connection status and can connect their wallet
+        
+        Key UX Principles:
+        - Clear status display
+        - Prominent connect button
+        - Always visible in navbar
+      -->
       <div class="wallet-section">
+        <!-- Status display - shows connection state to user -->
         <div id="status" class="status">Status: Not connected</div>
+        <!-- Connect button - triggers MetaMask wallet connection -->
         <button id="connectBtn" class="btn primary">Connect Wallet</button>
       </div>
     </nav>
 
+    <!-- 
+      MAIN CONTENT CONTAINER
+      Contains all the page content below the fixed navbar
+    -->
     <div class="content-container">
+      <!-- 
+        PAGE HEADER
+        Explains what the DApp does - important for user understanding
+      -->
       <header class="page-header">
         <p>Interact with your smart contract directly from the browser</p>
       </header>
+      
+      <!-- 
+        APPLICATION INTERFACE CONTAINER
+        This contains the main functionality of our DApp
+      -->
       <div class="app-container">
         <main class="main-container">
-        <!-- Left side: Information Dashboard -->
-        <section class="info-dashboard">
-          <div class="info-card">
-            <div class="info-label">Current ETH Price</div>
-            <div id="ethPrice" class="info-value">Loading...</div>
+          
+          <!-- 
+            LEFT SIDE: INFORMATION DASHBOARD
+            
+            Why show this information?
+            1. Transparency - users see current market data
+            2. Education - helps users understand ETH values
+            3. Trust - shows real-time data from blockchain
+            4. UX - prevents failed transactions by showing requirements
+          -->
+          <section class="info-dashboard">
+            
+            <!-- 
+              ETH PRICE DISPLAY
+              Shows current Ethereum price in USD from Chainlink price feeds
+              
+              Educational Notes:
+              - Price comes from decentralized oracle (Chainlink)
+              - Updates in real-time when wallet connects
+              - Critical for understanding transaction values
+            -->
+            <div class="info-card">
+              <div class="info-label">Current ETH Price</div>
+              <div id="ethPrice" class="info-value">Loading...</div>
+            </div>
+        
+            <!-- 
+              USER BALANCE DISPLAY
+              Shows user's ETH balance from their connected wallet
+              
+              Why important?
+              - Users can see if they have enough funds
+              - Prevents insufficient balance errors
+              - Builds confidence in transaction capabilities
+            -->
+            <div class="info-card">
+              <div class="info-label">Your Balance</div>
+              <div id="walletBalance" class="info-value">Connect Wallet</div>
+            </div>
+        
+            <!-- 
+              MINIMUM DEPOSIT (USD)
+              Shows the smart contract's minimum funding requirement in USD
+              
+              Educational Notes:
+              - This is hardcoded in the smart contract ($5 USD)
+              - Prevents small, uneconomical transactions
+              - Ensures meaningful participation
+            -->
+            <div class="info-card">
+              <div class="info-label">Min Deposit (USD)</div>
+              <div id="minDepositUSD" class="info-value">$5.00</div>
+            </div>
+        
+            <!-- 
+              MINIMUM DEPOSIT (ETH)
+              Shows the ETH equivalent of the minimum USD requirement
+              
+              Why calculate this?
+              - ETH price fluctuates constantly
+              - Users think in ETH amounts when transacting
+              - Provides exact amount needed for successful transaction
+              - Calculated as: $5 USD ÷ Current ETH Price = Minimum ETH needed
+            -->
+            <div class="info-card">
+              <div class="info-label">Min Deposit (ETH)</div>
+              <div id="minDepositETH" class="info-value">Loading...</div>
+            </div>
+          </section>
+          
+          <!-- 
+            RIGHT SIDE: TRANSACTION INTERFACE
+            
+            This is where users actually interact with the smart contract
+            Clean, focused design for core functionality
+          -->
+          <div class="card">
+            
+            <!-- 
+              ETH AMOUNT INPUT
+              Where users specify how much ETH they want to send
+              
+              Input Features:
+              - type="number" - only allows numeric input
+              - step="0.001" - allows precise ETH amounts (3 decimal places)
+              - min="0" - prevents negative values
+              - placeholder updates dynamically with minimum required amount
+            -->
+            <div class="input-group">
+              <label for="ethAmount" class="input-label">ETH Amount</label>
+              <input
+                type="number"
+                id="ethAmount"
+                class="eth-input"
+                placeholder="0.001"
+                step="0.001"
+                min="0"
+              />
+            </div>
+            
+            <!-- 
+              ACTION BUTTONS
+              Core functionality buttons for smart contract interaction
+              
+              Button Design Principles:
+              - Clear, descriptive labels
+              - Visual hierarchy (primary/secondary/danger styling)
+              - Logical grouping of related actions
+            -->
+            <div class="actions">
+              <!-- 
+                BUY COFFEE BUTTON
+                Main action - sends ETH to the smart contract's fund() function
+                
+                What happens when clicked:
+                1. Validates user input amount
+                2. Checks if amount meets minimum USD requirement
+                3. Calls smart contract's fund() function
+                4. Sends ETH to contract
+                5. Updates user's recorded funding amount
+              -->
+              <button id="buyBtn" class="btn">Buy Coffee</button>
+              
+              <!-- 
+                GET BALANCE BUTTON
+                Utility function - could show contract balance or user's contribution
+                (Implementation can be added as needed)
+              -->
+              <button id="balanceBtn" class="btn">Get Balance</button>
+              
+              <!-- 
+                WITHDRAW BUTTON
+                Administrative function - only contract owner can withdraw funds
+                
+                Security Note:
+                - This will fail for non-owner addresses
+                - Smart contract enforces access control
+                - Demonstrates ownership patterns in smart contracts
+              -->
+              <button id="withdrawBtn" class="btn danger">Withdraw</button>
+            </div>
+            
+            <!-- 
+              STATUS DISPLAY
+              Shows transaction status and feedback to users
+              
+              Updates include:
+              - Connection status
+              - Transaction progress
+              - Success/error messages
+              - Transaction hashes for verification
+            -->
+            <div id="status" class="status">Status: Not connected</div>
           </div>
-      
-          <div class="info-card">
-            <div class="info-label">Your Balance</div>
-            <div id="walletBalance" class="info-value">Connect Wallet</div>
-          </div>
-      
-          <div class="info-card">
-            <div class="info-label">Min Deposit (USD)</div>
-            <div id="minDepositUSD" class="info-value">$5.00</div>
-          </div>
-      
-          <div class="info-card">
-            <div class="info-label">Min Deposit (ETH)</div>
-            <div id="minDepositETH" class="info-value">Loading...</div>
-          </div>
-        </section>
-        <!-- Right side: Main Card -->
-        <div class="card">
-          <div class="input-group">
-            <label for="ethAmount" class="input-label">ETH Amount</label>
-            <input
-              type="number"
-              id="ethAmount"
-              class="eth-input"
-              placeholder="0.001"
-              step="0.001"
-              min="0"
-            />
-          </div>
-          <div class="actions">
-            <button id="buyBtn" class="btn">Buy Coffee</button>
-            <button id="balanceBtn" class="btn">Get Balance</button>
-            <button id="withdrawBtn" class="btn danger">Withdraw</button>
-          </div>
-          <div id="status" class="status">Status: Not connected</div>
-        </div>
-      </main>
+        </main>
       </div>
+      
+      <!-- 
+        FOOTER
+        Simple attribution and educational context
+      -->
       <footer class="page-footer">
         <p>Built for learning • Web3 Integration Demo</p>
       </footer>
     </div>
+  </div>
 
+  <!-- 
+    JAVASCRIPT IMPORTS
+    
+    Educational Notes:
+    - We use ES6 modules (type="module") for modern JavaScript
+    - Viem is a lightweight, TypeScript-first Ethereum library
+    - Alternative to the heavier Ethers.js library
+    - Modular imports reduce bundle size and improve performance
+  -->
+  
+  <!-- Ethers.js CDN - Alternative library (currently commented out) -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.min.js"></script> -->
+  
+  <!-- Our main JavaScript file using Viem library -->
   <script src="viem-script.js" type="module"></script>
+  
+  <!-- Alternative Ethers implementation (currently commented out) -->
   <!-- <script src="ethers-script.js"></script> -->
 </body>
 </html>

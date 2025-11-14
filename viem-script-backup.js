@@ -232,7 +232,7 @@ async function Connect() {
                 /*
                   Read minimum funding requirement from contract
                   
-                  This calls the contract's mimimumDollarAmount function
+                  This calls the contract's `mimimumDollarAmount` function
                   Returns value in 18-decimal format (like wei)
                   $5 USD is stored as 5 * 10^18 in the contract
                 */
@@ -381,27 +381,93 @@ async function Connect() {
         console.log("MetaMask not detected. Please install MetaMask browser extension.");
     }
 }
+            }
+            
+            if (minDepositUSDDisplay) {
+                minDepositUSDDisplay.textContent = `$${minimumUSDAmount.toFixed(2)}`;
+                minDepositUSDDisplay.classList.remove("loading");
+            }
+            
+            if (minDepositETHDisplay) {
+                minDepositETHDisplay.textContent = `${minimumEthRequired.toFixed(6)} ETH`;
+                minDepositETHDisplay.classList.remove("loading");
+            }
+            
+            // Update the input placeholder with the exact minimum requirement
+            if (ethAmountInput) {
+                ethAmountInput.placeholder = minimumEthRequired.toFixed(6);
+                ethAmountInput.setAttribute('min', minimumEthRequired.toString());
+            }
+        } catch (error) {
+            /*
+              Handle errors in contract data fetching
+              
+              Possible errors:
+              - Contract not deployed
+              - Network issues
+              - ABI mismatch
+              - Function doesn't exist
+            */
+            console.error("Error fetching smart contract data:", error);
+            
+            // Provide fallback values to keep UI functional
+            if (ethAmountInput) {
+                ethAmountInput.placeholder = "0.002";
+            }
+            if (ethPriceDisplay) {
+                ethPriceDisplay.textContent = "Unable to fetch price";
+                ethPriceDisplay.classList.add("loading");
+            }
+            if (minDepositETHDisplay) {
+                minDepositETHDisplay.textContent = "Unable to calculate";
+                minDepositETHDisplay.classList.add("loading");
+            }
+        }
+        
+    } catch (err) {
+        /*
+          Handle wallet connection errors
+          
+          Common errors:
+          - User rejects connection
+          - Network switching fails
+          - MetaMask locked
+          - Invalid network
+        */
+        console.error("Wallet connection error:", err);
+        connectBtn.textContent = "❌ Connection failed";
+        statusDiv.textContent = "Connection failed";
+        
+        // Reset all displays on connection failure
+        if (ethPriceDisplay) {
+            ethPriceDisplay.textContent = "Connection failed";
+            ethPriceDisplay.classList.add("loading");
+        }
+        if (walletBalanceDisplay) {
+            walletBalanceDisplay.textContent = "Connect Wallet";
+            walletBalanceDisplay.classList.add("loading");
+        }
+        if (minDepositETHDisplay) {
+            minDepositETHDisplay.textContent = "Connect Wallet";
+            minDepositETHDisplay.classList.add("loading");
+        }
+    }
+        
+    } else {
+        /*
+          Handle case where MetaMask is not installed
+          
+          Educational moment: Inform user about Web3 wallet requirement
+        */
+        connectBtn.textContent = "No Wallet Detected";
+        statusDiv.textContent = "Please install MetaMask to use this DApp";
+        
+        // Optional: Provide link to MetaMask installation
+        console.log("MetaMask not detected. Please install MetaMask browser extension.");
+    }
+}
 
-// ==================================================================================
-// BUY COFFEE FUNCTION - Smart Contract Transaction
-// ==================================================================================
-
-/*
-  This function demonstrates how to send transactions to smart contracts:
-  1. Validate user input
-  2. Check minimum requirements
-  3. Prepare transaction
-  4. Send transaction to blockchain
-  5. Wait for confirmation
-  6. Update UI with results
-*/
 async function BuyCoffee() {
-    /*
-      STEP 1: Input validation
-      
-      Always validate user input before sending to blockchain
-      Invalid transactions waste gas and confuse users
-    */
     const ethAmount = ethAmountInput.value;
     if (!ethAmount || ethAmount <= 0) {
         alert("Please enter a valid ETH amount");
@@ -410,33 +476,20 @@ async function BuyCoffee() {
     
     console.log(`Buying coffee for ${ethAmount} ETH`);
     
-    /*
-      STEP 2: Check MetaMask availability
-      
-      User might have disconnected or locked wallet
-    */
     if(typeof window.ethereum !== "undefined"){
         try {
-            /*
-              STEP 3: Network verification (same as Connect function)
-              
-              Ensure user hasn't switched networks since connecting
-            */
+            // First check if we're on Sepolia network
             const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-            const sepoliaChainId = '0xaa36a7';
+            const sepoliaChainId = '0xaa36a7'; // Sepolia chain ID in hex
             
             if (chainId !== sepoliaChainId) {
+                // Request to switch to Sepolia
                 await window.ethereum.request({
                     method: 'wallet_switchEthereumChain',
                     params: [{ chainId: sepoliaChainId }],
                 });
             }
 
-            /*
-              STEP 4: Recreate clients (ensure fresh connection)
-              
-              Good practice: Don't assume clients are still valid
-            */
             walletClient = createWalletClient({
                 chain: sepolia,
                 transport: custom(window.ethereum),
@@ -449,57 +502,37 @@ async function BuyCoffee() {
                 transport: custom(window.ethereum),
             });
 
-            /*
-              STEP 5: Pre-transaction validation
-              
-              Check if user has enough balance and meets minimum requirements
-              This prevents failed transactions and saves user gas fees
-            */
+            // Check balance first
             const balance = await publicClient.getBalance({ address: connectedAccount });
             console.log("Account balance:", balance, "wei");
             
-            /*
-              Get real-time minimum requirements from contract
-              
-              We check this again because ETH price might have changed
-              since the user connected their wallet
-            */
+            // Check minimum funding requirement ($5 USD worth of ETH)
             const minimumUSD = await publicClient.readContract({
                 address: contractAddress,
                 abi: contractABI,
                 functionName: "mimimumDollarAmount",
             });
             
+            // Get real-time ETH price for validation
             const ethPriceWei = await publicClient.readContract({
                 address: contractAddress,
                 abi: contractABI,
                 functionName: "getPrice",
             });
             
-            /*
-              Calculate if user's ETH amount meets USD minimum
-              
-              This is the same validation the smart contract will do,
-              but we do it client-side first to provide better UX
-            */
-            const minimumUSDAmount = Number(minimumUSD) / 1e18;
-            const ethPriceUSD = Number(ethPriceWei) / 1e18;
+            const minimumUSDAmount = Number(minimumUSD) / 1e18; // $5 USD
+            const ethPriceUSD = Number(ethPriceWei) / 1e18; // Current ETH price
             const userEthAmount = Number(ethAmount);
-            const userUSDAmount = userEthAmount * ethPriceUSD;
-            const minimumEthRequired = minimumUSDAmount / ethPriceUSD;
+            const userUSDAmount = userEthAmount * ethPriceUSD; // User's ETH in USD
+            const minimumEthRequired = minimumUSDAmount / ethPriceUSD; // Exact ETH needed for $5
             
-            console.log("Minimum required: $", minimumUSDAmount, "USD");
-            console.log("Current ETH price: $", ethPriceUSD.toFixed(2), "USD");
+            console.log("Minimum required:", minimumUSDAmount, "USD");
+            console.log("Current ETH price:", ethPriceUSD.toFixed(2), "USD");
             console.log("User sending:", userEthAmount, "ETH");
-            console.log("User's USD equivalent: $", userUSDAmount.toFixed(2), "USD");
+            console.log("User's USD equivalent:", userUSDAmount.toFixed(2), "USD");
             console.log("Minimum ETH needed:", minimumEthRequired.toFixed(6), "ETH");
             
-            /*
-              Client-side validation to prevent failed transactions
-              
-              If this fails, the smart contract would reject the transaction
-              and user would lose gas fees for nothing
-            */
+            // Pre-validate before transaction
             if (userUSDAmount < minimumUSDAmount) {
                 alert(`Insufficient amount! You need at least $${minimumUSDAmount} USD worth of ETH.\n\nYou're sending: $${userUSDAmount.toFixed(2)} USD\nMinimum required: ${minimumEthRequired.toFixed(6)} ETH`);
                 return;
@@ -507,139 +540,34 @@ async function BuyCoffee() {
             
             console.log("✅ Amount validation passed - proceeding with transaction...");
             
-            /*
-              STEP 6: Simulate transaction before sending
-              
-              simulateContract does a "dry run" of the transaction:
-              - Checks if transaction would succeed
-              - Estimates gas costs
-              - Returns transaction request object
-              - No actual blockchain state changes
-              
-              This is a best practice to catch errors before spending gas
-            */
+            // Simulate the contract call first
             const { request } = await publicClient.simulateContract({
-                address: contractAddress,        // Our smart contract address
-                account: connectedAccount,       // User's wallet address
-                abi: contractABI,               // Contract interface
-                functionName: "fund",           // Function to call on contract
-                value: parseEther(ethAmount),   // ETH amount to send (converted to wei)
+                address: contractAddress,
+                account: connectedAccount,
+                abi: contractABI,
+                functionName: "fund",
+                value: parseEther(ethAmount),
             });
 
-            /*
-              STEP 7: Execute the actual transaction
-              
-              writeContract sends the transaction to the blockchain:
-              - User sees MetaMask popup to confirm
-              - User pays gas fees
-              - Transaction is broadcast to network
-              - Returns transaction hash
-            */
+            // Execute the actual transaction
             const hash = await walletClient.writeContract(request);
             console.log("Transaction hash:", hash);
             
-            /*
-              STEP 8: Wait for transaction confirmation
-              
-              Blockchain transactions aren't instant:
-              - Takes time for miners to include in block
-              - Need to wait for network confirmation
-              - Receipt contains final transaction details
-            */
-            statusDiv.textContent = "Transaction pending...";
+            // Wait for transaction confirmation
             const receipt = await publicClient.waitForTransactionReceipt({ hash });
             console.log("Transaction confirmed:", receipt);
             
-            /*
-              STEP 9: Success feedback to user
-              
-              Show transaction success with verifiable hash
-              Users can check transaction on blockchain explorer
-            */
             statusDiv.textContent = `Coffee bought! Tx: ${hash.substring(0, 10)}...`;
-            
-            // Optional: Clear input field for next transaction
-            ethAmountInput.value = '';
 
         } catch (error) {
-            /*
-              Handle transaction errors
-              
-              Common errors:
-              - User rejects transaction
-              - Insufficient gas fees
-              - Contract requirements not met
-              - Network congestion
-            */
             console.error("Transaction failed:", error);
             statusDiv.textContent = `Transaction failed: ${error.message}`;
-            
-            // Parse error message for user-friendly feedback
-            if (error.message.includes("user rejected")) {
-                statusDiv.textContent = "Transaction cancelled by user";
-            } else if (error.message.includes("insufficient funds")) {
-                statusDiv.textContent = "Insufficient funds for transaction";
-            } else if (error.message.includes("didn't send enough ETH")) {
-                statusDiv.textContent = "Amount too low - need at least $5 USD worth of ETH";
-            }
         }
     } else {
-        /*
-          Handle case where MetaMask becomes unavailable
-          
-          This can happen if user disables extension or changes browsers
-        */
-        alert("Please install MetaMask to use this DApp!");
-        statusDiv.textContent = "MetaMask required for transactions";
+        alert("Please install MetaMask!");
     }
 }
 
-// ==================================================================================
-// EVENT LISTENERS - Connect UI to functions
-// ==================================================================================
 
-/*
-  Event listeners connect HTML buttons to JavaScript functions
-  
-  Modern approach using addEventListener:
-  - Separates HTML from JavaScript
-  - Allows multiple listeners per element
-  - Better error handling
-  - More maintainable code
-*/
-
-// Connect wallet when user clicks connect button
 connectBtn.addEventListener("click", Connect);
-
-// Execute transaction when user clicks buy coffee button
 buyBtn.addEventListener("click", BuyCoffee);
-
-/*
-  ADDITIONAL FEATURES FOR STUDENTS TO IMPLEMENT:
-  
-  1. Balance Button Function:
-     - Show contract balance
-     - Show user's contribution amount
-     - Display funding history
-  
-  2. Withdraw Button Function:
-     - Check if user is contract owner
-     - Call contract's withdraw function
-     - Handle owner-only access control
-  
-  3. Real-time Updates:
-     - Auto-refresh balance when transactions complete
-     - Listen for blockchain events
-     - Update UI when other users interact with contract
-  
-  4. Error Recovery:
-     - Automatic retry for failed transactions
-     - Better error messages for different scenarios
-     - Network connectivity detection
-  
-  5. Enhanced UX:
-     - Loading spinners during transactions
-     - Transaction history display
-     - Gas fee estimation
-     - Transaction success animations
-*/

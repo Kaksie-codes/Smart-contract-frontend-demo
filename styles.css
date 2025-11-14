@@ -1,219 +1,433 @@
+/*
+  MINIMAL DAPP STYLES - RESPONSIVE CSS FOR BLOCKCHAIN INTERFACE
+  
+  This CSS file creates a modern, responsive interface for our DApp.
+  
+  KEY DESIGN CONCEPTS:
+  1. Mobile-First Responsive Design - Design for phones first, scale up
+  2. CSS Grid & Flexbox - Modern layout systems for flexible positioning
+  3. Glassmorphism Effect - Modern UI trend using transparency and blur
+  4. CSS Custom Properties - Variables for consistent theming
+  5. Semantic Spacing - Using rem/em units for scalable spacing
+  6. Accessibility - High contrast, clear typography, focus states
+  7. Performance - Hardware acceleration with transforms
+*/
+
+/* ==================================================================================
+   GLOBAL RESET & BASE STYLES - Foundation for all elements
+   ================================================================================== */
+
+/*
+  Universal Reset Box Model:
+  - margin: 0, padding: 0 removes browser default spacing
+  - box-sizing: border-box makes width/height include padding and borders
+  - This gives predictable sizing behavior across all browsers
+*/
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+  margin: 0;                           /* Remove default margins */
+  padding: 0;                          /* Remove default padding */
+  box-sizing: border-box;              /* Include padding/borders in size calculations */
+  font-family: "Poppins", sans-serif;  /* Modern, readable font for entire application */
 }
 
+/*
+  Body Styling - Main container for entire application
+  
+  Background: Radial gradient creates depth and visual interest
+  - radial-gradient: Creates circular color transition
+  - circle at top: Gradient center positioned at top of screen
+  - Colors: Dark blues for professional, tech-focused appearance
+*/
 body {
-  background: radial-gradient(circle at top, #1f1f47, #111);
-  color: #fff;
-  min-height: 100vh;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
+  background: radial-gradient(circle at top, #1f1f47, #111);  /* Blue-to-dark gradient */
+  color: #fff;                         /* White text for high contrast */
+  min-height: 100vh;                   /* Full viewport height minimum */
+  margin: 0;                           /* Remove default body margin */
+  display: flex;                       /* Flexbox for vertical layout */
+  flex-direction: column;              /* Stack children vertically */
 }
 
+/* ==================================================================================
+   NAVIGATION BAR - Fixed header with glassmorphism effect
+   ================================================================================== */
+
+/*
+  Fixed Navigation Bar:
+  - position: fixed keeps navbar at top during scroll
+  - top/left/right: 0 makes it span full width at top
+  - z-index: 1000 ensures it appears above other content
+  
+  Glassmorphism Effect:
+  - Semi-transparent background with backdrop-filter blur
+  - Creates modern "frosted glass" appearance
+  - Popular in modern UI design for elegant transparency
+*/
 .navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 15px 20px;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  position: fixed;                     /* Stay at top during scroll */
+  top: 0;                              /* Align to top of viewport */
+  left: 0;                             /* Align to left edge */
+  right: 0;                            /* Stretch to right edge */
+  display: flex;                       /* Horizontal layout for logo and wallet */
+  justify-content: space-between;      /* Push logo left, wallet right */
+  align-items: center;                 /* Vertically center all items */
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent white overlay */
+  padding: 15px 20px;                  /* Internal spacing (15px top/bottom, 20px sides) */
+  backdrop-filter: blur(6px);          /* Blur background content behind navbar */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  z-index: 1000;                       /* Appear above all other content */
 }
 
+/*
+  Main Content Container:
+  - Accounts for fixed navbar by adding top padding
+  - Centers content horizontally using flexbox
+  - Provides consistent spacing on all screen sizes
+*/
 .app-container {
-  width: 100%;
-  padding: 80px 20px 20px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: calc(100vh - 80px);
+  width: 100%;                         /* Full container width */
+  padding: 80px 20px 20px;            /* 80px top (navbar height), 20px sides/bottom */
+  display: flex;                       /* Flexbox for centering content */
+  justify-content: center;             /* Center content horizontally */
+  align-items: flex-start;             /* Align content to top */
+  min-height: calc(100vh - 80px);      /* Full height minus navbar */
 }
 
+/*
+  Logo Styling:
+  - Clear, readable application name
+  - Appropriate size for mobile-first design
+*/
 .logo h1 {
-  font-size: 1.4rem;
-  margin: 0;
-  color: #fff;
+  font-size: 1.4rem;                   /* 1.4x default font size */
+  margin: 0;                           /* Remove default heading margins */
+  color: #fff;                         /* White text for visibility */
 }
 
+/*
+  Wallet Section:
+  - Groups wallet address and connection status
+  - Horizontal layout with consistent spacing
+*/
 .wallet-section {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: flex;                       /* Horizontal layout */
+  align-items: center;                 /* Vertically center items */
+  gap: 12px;                          /* 12px space between child elements */
 }
 
+/* ==================================================================================
+   WALLET STATUS STYLING - Display connection state
+   ================================================================================== */
+
+/*
+  Wallet Address Display:
+  - Shows abbreviated wallet address in navbar
+  - Handles text overflow gracefully with ellipsis
+  - Changes color based on connection status
+*/
 .wallet-address {
-  font-size: 0.8rem;
-  color: #bbb;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 0.8rem;                   /* Smaller text for address */
+  color: #bbb;                         /* Neutral gray for disconnected state */
+  max-width: 120px;                    /* Limit width to prevent layout issues */
+  overflow: hidden;                    /* Hide overflowing text */
+  text-overflow: ellipsis;             /* Show ... when text is cut off */
+  white-space: nowrap;                 /* Prevent text wrapping */
 }
 
+/*
+  Connected State Styling:
+  - Visual feedback when wallet is successfully connected
+  - Green color indicates active connection
+*/
 .wallet-address.connected {
-  color: #4ade80;
-  font-weight: 500;
+  color: #4ade80;                      /* Green color for connected state */
+  font-weight: 500;                    /* Slightly bolder text */
 }
 
+/*
+  Navigation Button Styling:
+  - Smaller button size for navbar to save space
+  - Consistent with main button styling but compact
+*/
 .navbar .btn {
-  padding: 8px 12px;
-  font-size: 0.85rem;
+  padding: 8px 12px;                   /* Compact padding for navbar */
+  font-size: 0.85rem;                  /* Smaller text for space efficiency */
 }
 
+/* ==================================================================================
+   PAGE HEADER - Main title and description area
+   ================================================================================== */
+
+/*
+  Page Header Styling:
+  - Centers title and description
+  - Accounts for fixed navbar with top margin
+  - Provides visual separation from main content
+*/
 .page-header {
-  text-align: center;
-  margin-top: 80px;
-  margin-bottom: 20px;
-  padding: 20px;
+  text-align: center;                  /* Center all text content */
+  margin-top: 80px;                    /* Space below fixed navbar */
+  margin-bottom: 20px;                 /* Space above main content */
+  padding: 20px;                       /* Internal spacing */
 }
 
+/*
+  Header Description Text:
+  - Subtitle text with muted color
+  - Larger than body text but smaller than headings
+*/
 .page-header p {
-  font-size: 1.1rem;
-  color: #ccc;
-  margin: 0;
+  font-size: 1.1rem;                   /* Slightly larger than body text */
+  color: #ccc;                         /* Muted gray for subtitle */
+  margin: 0;                           /* Remove default paragraph margins */
 }
 
+/* ==================================================================================
+   MAIN LAYOUT CONTAINER - Grid system for responsive layout
+   ================================================================================== */
+
+/*
+  App Container Override:
+  - Flexbox container for main content area
+  - Centers content horizontally
+  - Allows for responsive scaling
+*/
 .app-container {
-  flex: 1;
-  width: 100%;
-  padding: 0 20px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex: 1;                             /* Take remaining space after navbar */
+  width: 100%;                         /* Full width container */
+  padding: 0 20px;                     /* Horizontal padding only */
+  display: flex;                       /* Flexbox for centering */
+  justify-content: center;             /* Center content horizontally */
+  align-items: flex-start;             /* Align content to top */
 }
 
+/*
+  Main Grid Container:
+  - CSS Grid for side-by-side layout
+  - Info dashboard on left, transaction card on right
+  - Responsive columns that adapt to screen size
+  - Max width prevents overly wide layout on large screens
+*/
 .main-container {
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 30px;
-  align-items: start;
-  max-width: 1000px;
-  width: 100%;
+  display: grid;                       /* CSS Grid layout system */
+  grid-template-columns: 1fr 400px;    /* Left column flexible, right column fixed 400px */
+  gap: 30px;                          /* 30px space between columns */
+  align-items: start;                  /* Align grid items to top */
+  max-width: 1000px;                   /* Maximum width for readability */
+  width: 100%;                         /* Use full available width up to max */
 }
 
+/* ==================================================================================
+   CARD STYLING - Glassmorphism design for content containers
+   ================================================================================== */
+
+/*
+  Main Card Styling:
+  - Glassmorphism effect with transparency and blur
+  - Rounded corners for modern appearance
+  - Subtle shadow for depth perception
+  - Responsive height based on content
+*/
 .card {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  text-align: center;
-  backdrop-filter: blur(6px);
-  height: fit-content;
+  background: rgba(255, 255, 255, 0.08); /* Semi-transparent white background */
+  border-radius: 16px;                 /* Rounded corners for modern look */
+  padding: 25px;                       /* Internal spacing for content */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* Soft shadow for depth */
+  text-align: center;                  /* Center align card content */
+  backdrop-filter: blur(6px);          /* Blur background for glass effect */
+  height: fit-content;                 /* Height adapts to content size */
 }
 
+/* ==================================================================================
+   INFO DASHBOARD - Data display grid system
+   ================================================================================== */
+
+/*
+  Info Dashboard Grid:
+  - 2x2 grid layout for blockchain data cards
+  - Equal columns for balanced visual weight
+  - Consistent spacing between cards
+*/
 .info-dashboard {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  display: grid;                       /* CSS Grid for card arrangement */
+  grid-template-columns: 1fr 1fr;      /* Two equal columns */
+  gap: 15px;                          /* Space between info cards */
 }
 
+/*
+  Individual Info Cards:
+  - Similar to main card but smaller padding
+  - Hover effects for interactivity
+  - Border for subtle definition
+  - Smooth transitions for polish
+*/
 .info-card {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: rgba(255, 255, 255, 0.08); /* Matching glassmorphism background */
+  border-radius: 12px;                 /* Slightly smaller radius than main card */
+  padding: 20px;                       /* Compact padding for data display */
+  text-align: center;                  /* Center card content */
+  backdrop-filter: blur(6px);          /* Consistent glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border for definition */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Lighter shadow than main card */
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover animations */
 }
 
+/*
+  Info Card Hover Effects:
+  - Subtle lift animation on hover
+  - Enhanced shadow for feedback
+  - Indicates cards are interactive elements
+*/
 .info-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);         /* Small upward movement */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
 }
 
+/* ==================================================================================
+   INFO CARD TYPOGRAPHY - Labels and values styling
+   ================================================================================== */
+
+/*
+  Info Card Labels:
+  - Small, uppercase labels for data categories
+  - Muted color to emphasize the values below
+  - Consistent letter spacing for professional look
+*/
 .info-label {
-  font-size: 0.8rem;
-  color: #bbb;
-  margin-bottom: 8px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 0.8rem;                   /* Small text for labels */
+  color: #bbb;                         /* Muted gray color */
+  margin-bottom: 8px;                  /* Space between label and value */
+  font-weight: 500;                    /* Medium font weight */
+  text-transform: uppercase;           /* Convert text to uppercase */
+  letter-spacing: 0.5px;              /* Slight letter spacing for readability */
 }
 
+/*
+  Info Card Values:
+  - Large, bold text for the actual data
+  - White color for high contrast and readability
+  - Size emphasizes importance of the values
+*/
 .info-value {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #fff;
+  font-size: 1.4rem;                   /* Large text for emphasis */
+  font-weight: 600;                    /* Bold font weight */
+  color: #fff;                         /* High contrast white text */
 }
 
-/* Specific colors for different info types */
+/* ==================================================================================
+   INFO CARD COLOR CODING - Visual categorization system
+   ================================================================================== */
+
+/*
+  Color Coding System:
+  - Each info card gets a unique color for visual categorization
+  - Colors help users quickly identify different data types
+  - Text shadows add subtle glow effects matching the colors
+  - nth-child selectors target specific cards in order
+*/
+
+/* First card: Blue for ETH Price (financial data) */
 .info-card:nth-child(1) .info-value {
-  color: #3b82f6;
-  text-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+  color: #3b82f6;                      /* Blue color */
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.3); /* Blue glow effect */
 }
 
+/* Second card: Green for Wallet Balance (user's assets) */
 .info-card:nth-child(2) .info-value {
-  color: #22c55e;
-  text-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
+  color: #22c55e;                      /* Green color */
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.3); /* Green glow effect */
 }
 
+/* Third card: Orange for Minimum USD (requirements) */
 .info-card:nth-child(3) .info-value {
-  color: #f59e0b;
-  text-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+  color: #f59e0b;                      /* Orange color */
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.3); /* Orange glow effect */
 }
 
+/* Fourth card: Pink for Minimum ETH (calculations) */
 .info-card:nth-child(4) .info-value {
-  color: #ec4899;
-  text-shadow: 0 0 8px rgba(236, 72, 153, 0.3);
+  color: #ec4899;                      /* Pink color */
+  text-shadow: 0 0 8px rgba(236, 72, 153, 0.3); /* Pink glow effect */
 }
 
+/*
+  Loading State Styling:
+  - Visual feedback when data is being fetched
+  - Animated pulse effect draws attention
+  - Muted color indicates temporary state
+*/
 .info-value.loading {
-  color: #888;
-  animation: pulse 1.5s ease-in-out infinite;
+  color: #888;                         /* Muted gray for loading state */
+  animation: pulse 1.5s ease-in-out infinite; /* Smooth pulsing animation */
 }
 
+/*
+  Pulse Animation:
+  - Creates breathing effect for loading states
+  - Fades opacity in and out smoothly
+  - Indicates to user that content is being loaded
+*/
 @keyframes pulse {
   0%, 100% {
-    opacity: 1;
+    opacity: 1;                        /* Full opacity at start and end */
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.5;                      /* Half opacity at middle */
   }
 }
 
-/* Responsive adjustments */
+/* ==================================================================================
+   RESPONSIVE DESIGN - Mobile-first media queries
+   ================================================================================== */
+
+/*
+  Tablet Breakpoint (1024px and below):
+  - Switch from side-by-side to stacked layout
+  - Maintain info dashboard grid but improve spacing
+  - Prioritize vertical space efficiency
+*/
 @media (max-width: 1024px) {
   .main-container {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: 1fr;       /* Single column layout */
+    gap: 20px;                        /* Reduced gap for mobile */
   }
   
   .info-dashboard {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Flexible columns */
+    margin-bottom: 20px;              /* Space before transaction card */
   }
 }
 
+/*
+  Mobile Breakpoint (768px and below):
+  - Maintain 2x2 grid for info cards
+  - Reduce text sizes for smaller screens
+  - Optimize touch targets and spacing
+*/
 @media (max-width: 768px) {
   .info-dashboard {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(2, 1fr); /* 2x2 grid layout */
+    gap: 12px;                        /* Smaller gaps for mobile */
   }
   
   .info-value {
-    font-size: 1.2rem;
+    font-size: 1.2rem;                /* Slightly smaller text */
   }
 }
 
+/*
+  Small Mobile Breakpoint (480px and below):
+  - Single column for info cards
+  - Further reduce text sizes
+  - Maximum space efficiency
+*/
 @media (max-width: 480px) {
   .info-dashboard {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: 1fr;       /* Single column on small screens */
+    gap: 10px;                        /* Minimal gaps */
   }
   
   .info-value {
-    font-size: 1.1rem;
+    font-size: 1.1rem;                /* Smaller text for small screens */
   }
   
   .main-container {
@@ -284,29 +498,111 @@ body {
   background: #3b82f6;
 }
 
+/*
+  Primary Button Hover State:
+  - Darker blue on hover for primary buttons
+  - Visual feedback for interaction
+*/
 .btn.primary:hover {
-  background: #2563eb;
+  background: #2563eb;                 /* Darker blue on hover */
 }
 
+/*
+  Danger Button Styling:
+  - Red color for destructive actions (withdraw, cancel)
+  - Warns users of potentially harmful actions
+*/
 .btn.danger {
-  background: #ef4444;
+  background: #ef4444;                 /* Red background for danger actions */
 }
 
+/*
+  Danger Button Hover State:
+  - Darker red on hover
+  - Emphasizes the serious nature of the action
+*/
 .btn.danger:hover {
-  background: #dc2626;
+  background: #dc2626;                 /* Darker red on hover */
 }
 
+/* ==================================================================================
+   STATUS AND FEEDBACK ELEMENTS - User communication
+   ================================================================================== */
+
+/*
+  Status Display:
+  - Shows transaction status and connection info
+  - Consistent styling with other UI elements
+  - Semi-transparent background for subtle visibility
+*/
 .status {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.08); /* Matching glassmorphism background */
+  padding: 10px;                       /* Compact padding */
+  border-radius: 8px;                  /* Rounded corners */
+  font-size: 0.9rem;                   /* Slightly smaller text */
 }
 
+/* ==================================================================================
+   PAGE FOOTER - Educational and credit information
+   ================================================================================== */
+
+/*
+  Footer Styling:
+  - Centered text for balanced layout
+  - Smaller, muted text for secondary information
+  - Generous spacing for visual separation
+  - Contains educational disclaimer and credits
+*/
 .page-footer {
-  text-align: center;
-  font-size: 0.8rem;
-  color: #bbb;
-  margin-top: 40px;
-  padding: 20px;
+  text-align: center;                  /* Center align footer text */
+  font-size: 0.8rem;                   /* Small text for footer content */
+  color: #bbb;                         /* Muted color for secondary info */
+  margin-top: 40px;                    /* Large top margin for separation */
+  padding: 20px;                       /* Internal spacing */
 }
+
+/*
+  CSS ARCHITECTURE SUMMARY FOR STUDENTS:
+  
+  This stylesheet demonstrates several modern CSS concepts:
+  
+  1. MOBILE-FIRST DESIGN:
+     - Base styles target mobile devices
+     - Media queries add styles for larger screens
+     - Progressive enhancement approach
+  
+  2. CSS GRID & FLEXBOX:
+     - Grid for two-dimensional layouts (main container)
+     - Flexbox for one-dimensional layouts (navigation, buttons)
+     - Modern layout systems replace floats and positioning
+  
+  3. GLASSMORPHISM DESIGN:
+     - Semi-transparent backgrounds
+     - Backdrop blur filters
+     - Subtle borders and shadows
+     - Modern UI trend that works well for web3 apps
+  
+  4. CSS CUSTOM PROPERTIES (Variables):
+     - Could be added for color consistency
+     - Example: --primary-blue: #3b82f6;
+     - Makes theming easier and more maintainable
+  
+  5. PERFORMANCE CONSIDERATIONS:
+     - Hardware acceleration with transform properties
+     - Efficient transitions using transform and opacity
+     - Minimal use of expensive properties like box-shadow
+  
+  6. ACCESSIBILITY:
+     - High contrast color ratios
+     - Focus states for keyboard navigation
+     - Large touch targets for mobile devices
+     - Semantic color coding (green=success, red=danger)
+  
+  NEXT STEPS FOR STUDENTS:
+  1. Add CSS custom properties for consistent theming
+  2. Implement dark/light theme switching
+  3. Add loading spinners and micro-interactions
+  4. Experiment with CSS animations for transaction feedback
+  5. Test with screen readers and improve accessibility
+  6. Add print styles for documentation/receipts
+*/
