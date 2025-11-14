@@ -934,13 +934,13 @@ async function BuyCoffee() {
               
               This is a best practice to catch errors before spending gas
             */
-            const { request } = await publicClient.simulateContract({
-                address: contractAddress,        // Our smart contract address
-                account: connectedAccount,       // User's wallet address
-                abi: contractABI,               // Contract interface
-                functionName: "fund",           // Function to call on contract
-                value: parseEther(ethAmount),   // ETH amount to send (converted to wei)
-            });
+            // const { request } = await publicClient.simulateContract({
+            //     address: contractAddress,        // Our smart contract address
+            //     account: connectedAccount,       // User's wallet address
+            //     abi: contractABI,               // Contract interface
+            //     functionName: "fund",           // Function to call on contract
+            //     value: parseEther(ethAmount),   // ETH amount to send (converted to wei)
+            // });
 
             /*
               STEP 7: Execute the actual transaction
@@ -951,7 +951,14 @@ async function BuyCoffee() {
               - Transaction is broadcast to network
               - Returns transaction hash
             */
-            const hash = await walletClient.writeContract(request);
+            // const hash = await walletClient.writeContract(request);
+            const hash = await walletClient.writeContract({
+                address: contractAddress,
+                abi: contractABI,
+                functionName: "fund",
+                value: parseEther(ethAmount),
+                account: connectedAccount
+            });
             console.log("Transaction hash:", hash);
             
             /*
