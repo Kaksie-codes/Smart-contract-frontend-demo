@@ -166,11 +166,9 @@ async function Connect() {
             const [address] = await walletClient.requestAddresses();
             console.log("Connected address:", address);
             
-            // Save connection state for persistence
+            // Update connection state
             isConnected = true;
             connectedAddress = address;
-            localStorage.setItem('walletConnected', 'true');
-            localStorage.setItem('walletAddress', address);
             
             /*
               STEP 5: Update UI for successful connection
@@ -371,8 +369,6 @@ async function Connect() {
             // Clear connection state on failure
             isConnected = false;
             connectedAddress = null;
-            localStorage.removeItem('walletConnected');
-            localStorage.removeItem('walletAddress');
             
             // Reset all displays on connection failure
             if (ethPriceDisplay) {
@@ -1002,8 +998,6 @@ if (typeof window.ethereum !== "undefined") {
             // User disconnected
             isConnected = false;
             connectedAddress = null;
-            localStorage.removeItem('walletConnected');
-            localStorage.removeItem('walletAddress');
             
             // Reset UI
             connectBtn.textContent = "Connect Wallet";
@@ -1027,9 +1021,23 @@ if (typeof window.ethereum !== "undefined") {
             }
             
         } else if (accounts[0] !== connectedAddress) {
-            // Account switched
-            localStorage.setItem('walletAddress', accounts[0]);
-            autoReconnect();
+            // Account switched - user will need to reconnect manually
+            console.log('Account switched to:', accounts[0]);
+            console.log('Please reconnect your wallet to continue');
+            
+            // Reset connection state
+            isConnected = false;
+            connectedAddress = null;
+            
+            // Update UI to show disconnected state
+            connectBtn.textContent = "Connect Wallet";
+            statusDiv.textContent = "Account changed - please reconnect";
+            
+            const walletAddressElement = document.getElementById("walletAddress");
+            if (walletAddressElement) {
+                walletAddressElement.textContent = "Not Connected";
+                walletAddressElement.classList.remove("connected");
+            }
         }
     });
     
@@ -1037,12 +1045,17 @@ if (typeof window.ethereum !== "undefined") {
     window.ethereum.on('chainChanged', (chainId) => {
         console.log('Network changed to:', chainId);
         
-        if (chainId === '0xaa36a7' && isConnected) {
-            setTimeout(() => {
-                if (isConnected) {
-                    autoReconnect();
-                }
-            }, 1000);
+        // User will need to reconnect after network change
+        if (isConnected) {
+            console.log('Network changed - please reconnect your wallet');
+            
+            // Reset connection state
+            isConnected = false;
+            connectedAddress = null;
+            
+            // Update UI
+            connectBtn.textContent = "Connect Wallet";
+            statusDiv.textContent = "Network changed - please reconnect";
         }
     });
 }
