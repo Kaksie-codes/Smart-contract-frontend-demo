@@ -33,7 +33,7 @@
 
 // Core Viem functions for blockchain interaction
 import { 
-    createClient,           // Generic client creation
+    // createClient,           // Generic client creation
     parseEther,            // Convert ETH strings to wei (blockchain format)
     createWalletClient,    // Client for sending transactions
     custom,                // Custom transport for MetaMask provider
@@ -168,7 +168,7 @@ async function Connect() {
       window.ethereum is injected by MetaMask browser extension
       If undefined, user doesn't have MetaMask installed
     */
-    if (typeof window.ethereum !== "undefined") {
+    if (window.ethereum) {
         try {
             /*
               STEP 2: Network verification and switching
@@ -218,7 +218,10 @@ async function Connect() {
               This triggers MetaMask popup asking user permission to connect
               Returns array of addresses (we use the first one)
             */
-            const [address] = await walletClient.requestAddresses();
+            // const [address] = await walletClient.requestAddresses();
+            const addreses = await walletClient.requestAddresses();
+            const address = addreses[0];
+            console.log("All connected addresses:", addreses);
             console.log("Connected address:", address);
             
             // Update connection state

@@ -10,7 +10,7 @@
 // SYNCHRONOUS JAVASCRIPT - Code runs line by line, waiting for each to finish
 // ==================================================================================
 
-console.log("=== SYNCHRONOUS EXAMPLES ===");
+// console.log("=== SYNCHRONOUS EXAMPLES ===");
 
 /*
   EXAMPLE 1: Basic Synchronous Code
@@ -18,10 +18,10 @@ console.log("=== SYNCHRONOUS EXAMPLES ===");
   - Next line waits for previous line to complete
   - Everything happens immediately
 */
-console.log("1. First task");
-console.log("2. Second task");
-console.log("3. Third task");
-console.log("Result: All tasks run in exact order, one after another");
+// console.log("1. First task");
+// console.log("2. Second task");
+// console.log("3. Third task");
+// console.log("Result: All tasks run in exact order, one after another");
 
 /*
   EXAMPLE 2: Synchronous Function
@@ -32,16 +32,16 @@ function addNumbers(a, b) {
     return a + b;
 }
 
-console.log("Before calling function");
-let result = addNumbers(5, 3);
-console.log("Function result:", result);
-console.log("After function call");
+// console.log("Before calling function");
+// let result = addNumbers(5, 3);
+// console.log("Function result:", result);
+// console.log("After function call");
 
 // ==================================================================================
 // ASYNCHRONOUS JAVASCRIPT - Code can run out of order, some tasks take time
 // ==================================================================================
 
-console.log("\n=== ASYNCHRONOUS EXAMPLES ===");
+// console.log("\n=== ASYNCHRONOUS EXAMPLES ===");
 
 /*
   EXAMPLE 1: setTimeout (Asynchronous)
@@ -49,13 +49,13 @@ console.log("\n=== ASYNCHRONOUS EXAMPLES ===");
   - Code continues running while timer counts down
   - Callback runs LATER when timer finishes
 */
-console.log("1. Starting timer...");
+// console.log("1. Starting timer...");
 
-setTimeout(() => {
-    console.log("3. Timer finished! (This runs AFTER 2 seconds)");
-}, 2000);
+// setTimeout(() => {
+//     console.log("3. Timer finished! (This runs AFTER 2 seconds)");
+// }, 2000);
 
-console.log("2. This runs IMMEDIATELY, doesn't wait for timer");
+// console.log("2. This runs IMMEDIATELY, doesn't wait for timer");
 
 /*
   EXAMPLE 2: Multiple Timers (Shows async nature)
@@ -63,21 +63,21 @@ console.log("2. This runs IMMEDIATELY, doesn't wait for timer");
   - They finish in order based on their delay time
   - Other code keeps running
 */
-console.log("\nStarting multiple timers:");
+// console.log("\nStarting multiple timers:");
 
-setTimeout(() => {
-    console.log("⏰ 1 second timer done");
-}, 1000);
+// setTimeout(() => {
+//     console.log("⏰ 1 second timer done");
+// }, 1000);
 
-setTimeout(() => {
-    console.log("⏰ 3 second timer done");
-}, 3000);
+// setTimeout(() => {
+//     console.log("⏰ 3 second timer done");
+// }, 3000);
 
-setTimeout(() => {
-    console.log("⏰ 0.5 second timer done");
-}, 500);
+// setTimeout(() => {
+//     console.log("⏰ 0.5 second timer done");
+// }, 500);
 
-console.log("All timers started! They'll finish when ready.");
+// console.log("All timers started! They'll finish when ready.");
 
 // ==================================================================================
 // PROMISES - Modern way to handle asynchronous code
@@ -89,7 +89,7 @@ console.log("All timers started! They'll finish when ready.");
   - .then() runs when promise completes successfully
   - .catch() runs if something goes wrong
 */
-console.log("\n=== PROMISE EXAMPLES ===");
+// console.log("\n=== PROMISE EXAMPLES ===");
 
 function waitAndReturn(message, seconds) {
     return new Promise((resolve) => {
@@ -99,14 +99,14 @@ function waitAndReturn(message, seconds) {
     });
 }
 
-console.log("Starting promise...");
+// console.log("Starting promise...");
 
-waitAndReturn("Promise completed!", 1.5)
-    .then((result) => {
-        console.log("✅", result);
-    });
+// waitAndReturn("Promise completed!", 1.5)
+//     .then((result) => {
+//         console.log("✅", result);
+//     });
 
-console.log("This runs immediately, doesn't wait for promise");
+// console.log("This runs immediately, doesn't wait for promise");
 
 // ==================================================================================
 // ASYNC/AWAIT - Even cleaner way to write asynchronous code
@@ -127,7 +127,7 @@ async function demonstrateAsyncAwait() {
     let message1 = await waitAndReturn("First message", 1);
     console.log("Got:", message1);
     
-    let message2 = await waitAndReturn("Second message", 1);
+    let message2 = await waitAndReturn("Second message", 2);
     console.log("Got:", message2);
     
     console.log("Async function completed!");
@@ -147,7 +147,7 @@ console.log("This runs while async function is working");
   - User interface must stay responsive
   - We can't freeze the browser waiting for blockchain
 */
-console.log("\n=== BLOCKCHAIN ASYNC EXAMPLE ===");
+// console.log("\n=== BLOCKCHAIN ASYNC EXAMPLE ===");
 
 // Simulating a blockchain transaction (fake function)
 function simulateBlockchainTransaction(amount) {
@@ -176,8 +176,8 @@ async function sendEthTransaction() {
     }
 }
 
-sendEthTransaction();
-console.log("🖱️  User can still click other buttons while transaction processes");
+// sendEthTransaction();
+// console.log("🖱️  User can still click other buttons while transaction processes");
 
 // ==================================================================================
 // KEY TAKEAWAYS
@@ -213,5 +213,5 @@ console.log("🖱️  User can still click other buttons while transaction proce
   - Anything that takes time
 */
 
-console.log("\n🎓 Study the console output to see the execution order!");
-console.log("📝 Notice how async code doesn't block other code from running.");
+// console.log("\n🎓 Study the console output to see the execution order!");
+// console.log("📝 Notice how async code doesn't block other code from running.");
